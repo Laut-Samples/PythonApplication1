@@ -1,3 +1,5 @@
+from asyncio.windows_events import NULL
+from cgi import print_arguments
 from io import SEEK_SET
 import pygame
 import math
@@ -21,19 +23,20 @@ class Projectile:
     def __init__(self, x, y,radius=5):
         self.x = x
         self.y = y
-        self.speed = 10
+        self.speed = 12
         self.radius = radius  # add radius attribute
         self.image = pygame.image.load("firearrow.png")  # load projectile image
         self.timer = 0  # elapsed time since projectile was created
-        self.delay = 1000  # delay before projectile disappears (milliseconds)
+        self.delay = 2000  # delay before projectile disappears (milliseconds)
         self.created_time = pygame.time.get_ticks()  # time when projectile was created
-
-
+        self.xdir = 0
+        self.ydir = 0
 
     def update(self, projectiles):
     # Update the projectile's position
-        
-        self.speed = 10
+        #xdir,ydir are set in game loop for every created projectile
+        self.x += self.xdir * self.speed 
+        self.y += self.ydir * self.speed
 
         # Get the current time
         current_time = pygame.time.get_ticks()
@@ -46,14 +49,23 @@ class Projectile:
             # Remove the projectile from the list
             projectiles.remove(self)
 
+# Set the game start flag to False
+game_start = False
 
 
 def start_game():
     # Initialize Pygame
     pygame.init()
 
+    # Set the game window size
+    game_width = 800
+    game_height = 800
+
     # Set up the display window
-    screen = pygame.display.set_mode((400, 300))
+    screen = pygame.display.set_mode((game_width, game_height))
+
+        # Load the life points image
+    life_points_image = pygame.image.load("life_points.png")
 
 
     # Load the background image
@@ -61,6 +73,7 @@ def start_game():
 
     # Create a rect object for the background image
     background_rect = pygame.Rect(0, 0, 400, 300)  # (x, y, width, height)
+
 
     # Get the size of the game window
     game_width, game_height = screen.get_size()
@@ -73,21 +86,28 @@ def start_game():
     player_image = pygame.image.load("player.png")
 
     class Player:
-        def __init__(self, x, y, image, last_update_time=0):
+        def __init__(self, x, y, image, last_update_time=0, level = 1):
             self.x = x
             self.y = y
             self.image = image
-            self.shooting_delay = 250  # time between shots (milliseconds)
+            self.shooting_delay = 500  # time between shots (milliseconds)
             self.last_shot_time = 0  # time when player last shot
             self.last_update_time = last_update_time
             self.width = 50
             self.height = 50
+            self.level = level
+            
 
-
-   
+    # Set the player's initial score to 0
+    score = 0
+    # Set the score needed to reach the next level
+    level_up_score = 100
 
     # Create a player object
     player = Player(50, 50, player_image)
+
+    # Set the player's starting health
+    player_health = 3
 
     # Set the player's movement speed
     speed = 5
@@ -96,18 +116,15 @@ def start_game():
     image_flipped = False
     player_flipped = False
 
-
-    ## Set the game window size
-    #game_width = 600
-    #game_height = 500
+    
 
     class Enemy:
-        def __init__(self, x, y, image, speed):
+        def __init__(self, x, y, image, speed = 1, health =2):
             self.x = x
             self.y = y
             self.image = image
             self.speed = 1
- 
+            self.health = health
 
         def update(self, player):
         # Update the enemy's position based on the player's position
@@ -124,16 +141,16 @@ def start_game():
     # Load the enemy image
     enemy_image = pygame.image.load("enemy1.png")
 
+    # Load the enemy spawn indicator image
+    enemy_spawn_indicator_image = pygame.image.load("enemy_spawn_indicator.png")
+
+
     # Create an enemy object
     enemy = Enemy(200, 50, enemy_image, 1)
 
     # Add the enemy to the list of enemies
     enemies = [enemy]
-    
-    
 
-    # Initialize a variable to store the minimum distance to an enemy
-    min_distance = float('inf')
 
     # Create an empty list of enemies to remove
     enemies_to_remove = []
@@ -146,10 +163,17 @@ def start_game():
 
     enemy_count = 0
 
+    enemy_count_destroyed = 0
+    
+    # for automatic shooting
+    last_space_down_time = 0
+
     # Set the game start flag to False
     game_start = False
 
-    
+
+    # Set the game over flag
+    game_over = False
 
     # Create a game loop
     while True:
@@ -160,89 +184,100 @@ def start_game():
                 pygame.quit()
                 sys.exit()
 
+        
+            # Check if the player's health is zero or below
+        if player_health <= 0:
 
-   
+            game_over = True
+
+
         # Create a new level with 10 enemies and a background image
         level = Level(10)
+                            # Generate a random number between 0 and 100
+        rand = random.randint(0, 100)
 
-        # Check if the space bar is being held down
-        if pygame.key.get_pressed()[pygame.K_SPACE]:
-            # Check if this is the first frame that the space bar is being held down
-            if not space_down:
+        # If the random number is greater than 95, create a new enemy
+        if rand > 99 and enemy_count <= 100:
+            # Generate a random position for the enemy
+            x = random.randint(50, game_width - 50)  # 50 is the enemy's radius
+            y = random.randint(50, game_width - 50)
+            
+
+            
+            # Draw the spawn indicator image
+            # Create a new enemy object
+            enemy = Enemy(x, y, enemy_image, 1)
+                        # Clear the screen
+            # Add the enemy to the list of enemies
+            enemies.append(enemy)
+            enemy_count += 1
+           
+
+        # Set startime for shooting (doesnt work without)
+        if pygame.time.get_ticks() > 1:
+            
+            #if not space_down:
                 # Update the state of the space bar
-                space_down = True
-                last_space_down_time = pygame.time.get_ticks()
-            else:
+                #space_down = True
+                #last_space_down_time = pygame.time.get_ticks()
+                
+            #else:
                 # Get the current time
-                current_time = pygame.time.get_ticks()
+             current_time = pygame.time.get_ticks()
 
-                # Check if the elapsed time since the player last shot is greater than the shooting delay
-                if current_time - last_space_down_time > player.shooting_delay:
-                    # Create a new projectile 2 pixels away from the player's position
-                    projectile = Projectile(player.x + speed, player.y)
+             # Check if the elapsed time since the player last shot is greater than the shooting delay
+             if current_time - last_space_down_time > player.shooting_delay:
+                # Create a new projectile 2 pixels away from the player's position
+                projectile = Projectile(player.x + 2, player.y)
+                # Check player movement direction
+                if event.type == pygame.KEYDOWN:
+                        keys = pygame.key.get_pressed()
+                        if keys[pygame.K_LEFT]:     
+                            projectile.xdir = -1
+                            projectile.image = pygame.transform.rotate(projectile.image, -135)
+                        if keys[pygame.K_RIGHT]:
+                            projectile.xdir = 1
+                            projectile.image = pygame.transform.rotate(projectile.image, 45)
+                        if keys[pygame.K_UP]:
+                            projectile.ydir = -1
+                            projectile.image = pygame.transform.rotate(projectile.image, -225)
+                        if keys[pygame.K_DOWN]:
+                            projectile.ydir = 1
+                            projectile.image = pygame.transform.rotate(projectile.image, -45)
+                        if keys[pygame.K_DOWN] and keys[pygame.K_LEFT]:
+                            projectile.image = pygame.transform.rotate(projectile.image, 90)
+                        if keys[pygame.K_UP] and keys[pygame.K_RIGHT]:
+                            projectile.image = pygame.transform.rotate(projectile.image, -90)
+                        if keys[pygame.K_UP] and keys[pygame.K_LEFT]:
+                            projectile.image = pygame.transform.rotate(projectile.image, 180)
+                # Add the projectile to the list
+                projectiles.append(projectile)
 
-                    # Add the projectile to the list
-                    projectiles.append(projectile)
-
-                    # Update the time when the player last shot
-                    last_space_down_time = current_time
-        else:
-            # Update the state of the space bar
-            space_down = False
-
+                # Update the time when the player last shot
+                last_space_down_time = current_time
+                       
         
-
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                # Get the current time
-                current_time = pygame.time.get_ticks()
-
-                # Check if the elapsed time since the player last shot is greater than the shooting delay
-                if current_time - player.last_shot_time > player.shooting_delay:
-                    # Create a new projectile 2 pixels away from the player's position
-                    projectile = Projectile(player.x + speed, player.y)
-
-                    # Add the projectile to the list
-                    projectiles.append(projectile)
-
-                    # Update the player's last shot time
-                    player.last_shot_time = current_time
-
 
         # Limit the frame rate to 60 FPS
         clock = pygame.time.Clock()
         clock.tick(60)
 
-            # Generate a random number between 0 and 100
-        rand = random.randint(0, 100)
 
-        # If the random number is greater than 95, create a new enemy
-        if rand > 99 and enemy_count <= 10:
-            # Generate a random position for the enemy
-            x = random.randint(0, game_width - 50)  # 50 is the enemy's radius
-            y = random.randint(0, game_width - 50)
-            # Create a new enemy object
-            enemy = Enemy(x, y, enemy_image, 1)
-            # Add the enemy to the list of enemies
-            enemies.append(enemy)
-            enemy_count += 1
 
     
             
         # Check if the enemy has collided with the player
-        if enemy.x < player.x + 50 and enemy.x + 50 > player.x and enemy.y < player.y + 50 and enemy.y + 50 > player.y:
+        if enemy.x < player.x + 25 and enemy.x + 25 > player.x and enemy.y < player.y + 25 and enemy.y + 25 > player.y:
             # The enemy has collided with the player, so handle the collision
-            pass
+            player_health -= 1
    
         
     
         
-        # Initialize a variable to store the position of the nearest enemy
-        nearest_enemy = None
 
-        # Iterate over the list of enemies
+            # Iterate over the list of enemies
         for enemy in enemies:
-        
+
             # Update the enemy's position
             # Calculate the distance between the enemy and the player
             dx = player.x - enemy.x
@@ -253,13 +288,15 @@ def start_game():
             enemy.x += enemy.speed * math.cos(angle)
             enemy.y += enemy.speed * math.sin(angle)
 
-            # Calculate the distance between the enemy and the player
-            distance = math.sqrt((enemy.x - player.x)**2 + (enemy.y - player.y)**2)
+            # Check if the enemy has been hit by a projectile
+            for projectile in projectiles:
+                if enemy.x < projectile.x + 50 and enemy.x > projectile.x - 50 and enemy.y < projectile.y + 50 and enemy.y > projectile.y - 50:
+                   # The enemy has been hit by a projectile, so handle the collision
+                   # Add the enemy to the list of enemies to remove
+                   enemies_to_remove.append(enemy)
+                   projectiles.remove(projectile)  # remove the projectile from the list
+                   enemy.health -= 1
 
-            # Update the nearest enemy if this enemy is closer to the player
-            if distance < min_distance:
-                min_distance = distance
-                nearest_enemy = enemy
 
         
 
@@ -278,9 +315,13 @@ def start_game():
 
 
         # Update the player's position (example code)
-            # Check for arrow key presses
+        # Check for arrow key presses
+        keys = pygame.key.get_pressed()
+
+        
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT:                                                                                                         
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_LEFT]:                                                                                                         
                 # Check if the image has already been flipped
                 if not image_flipped:
                 # Flip the image horizontally
@@ -289,23 +330,24 @@ def start_game():
                     image_flipped = True
                 # Update the player's x position
                 player.x -= speed
-            elif  event.key == pygame.K_LEFT & pygame.K_UP:
-                player.x -= speed 
-                player.y -= speed
-                       
+                #if event.key == pygame.K_UP:
+                #    player.y -= speed
+                #elif event.key == pygame.K_DOWN:           
+                #    player.y += speed
 
-            if event.key == pygame.K_RIGHT:
+            if keys[pygame.K_RIGHT]:
                 # Check if the image has already been flipped
                 if image_flipped:
                 # Flip the image horizontally
                     player_image = pygame.transform.flip(player_image, True, False)
-                    # Update the flag
+                # Update the flag
                     image_flipped = False
-                    # Update the player's x position
+                # Update the player's x position
                 player.x += speed
-            elif event.key == pygame.K_UP:
+            if keys[pygame.K_UP]:
                 player.y -= speed
-            elif event.key == pygame.K_DOWN:           
+            #if event.key == pygame.K_DOWN:
+            if keys[pygame.K_DOWN]:           
                 player.y += speed
          
 
@@ -327,39 +369,29 @@ def start_game():
 
             # Remove the enemies from the list
         for enemy in enemies_to_remove:
-            try:
-                enemies.remove(enemy)
-            except ValueError:
-                # Do nothing, because the enemy is not in the list
-                pass
+            if enemy.health <= 0:
+                enemy_count_destroyed += 1
 
 
-        if nearest_enemy is not None:
-                # Iterate over the list of projectiles
-            for projectile in projectiles:
-                # Update the projectile's position
-                for enemy in enemies:
-                    projectile.speed = 1
-                    # Calculate the distance between the projectile and the enemy
-                    dx = enemy.x - projectile.x
-                    dy = enemy.y - projectile.y
-                    # Calculate the angle between the projectile and the enemy
-                    angle = math.atan2(dy, dx)
-                    # Calculate the new projectile position based on the angle and movement speed
-                    projectile.x += projectile.speed * math.cos(angle)
-                    projectile.y += projectile.speed * math.sin(angle)
+                try:
+                    enemies.remove(enemy)
+                                    # Update the player's score
+                    score += 10
+                except ValueError:
+                    # Do nothing, because the enemy is not in the list
+                    pass
 
-                if nearest_enemy.x < projectile.x + 2 and nearest_enemy.x + 50 > projectile.x and nearest_enemy.y < projectile.y + 2 and nearest_enemy.y + 50 > projectile.y:
-                    enemies_to_remove.append(nearest_enemy)
-                    projectiles.remove(projectile)
+            # Check if the player has reached the next level
+        if score >= level_up_score:
+            # Increase the player's level by 1
+            player.level += 1
+            # Set the score needed to reach the next level
+            level_up_score += 100
+            # Update the display
+                            # Set the font and font size
+            
 
-
-
-
-
-
-
-
+            pygame.display.update()
 
         # Clear the screen
         screen.fill((0, 0, 0))  # fill with black
@@ -368,26 +400,118 @@ def start_game():
 
         # Draw the background image on the screen
         screen.blit(background_image, (0, 0))
-
-
         
+        if player.level == 1:
+            font = pygame.font.Font(None, 36)
+            # Set the text to display
+            text = "Level 1"
+            # Render the text as an image
+            text_image = font.render(text, True, (0, 0, 0))
+            # Get the text image's rectangle
+            text_rect = text_image.get_rect()
+            # Set the position of the text image
+            text_rect.topright = (790, 10)
+            # Blit the text image to the screen
+            screen.blit(text_image, text_rect)
+            # Set the font and font size
+
+        if player.level == 2:
+            font = pygame.font.Font(None, 36)
+            # Set the text to display
+            text = "Level 2"
+            # Render the text as an image
+            text_image = font.render(text, True, (0, 0, 0))
+            # Get the text image's rectangle
+            text_rect = text_image.get_rect()
+            # Set the position of the text image
+            text_rect.topright = (790, 10)
+            # Blit the text image to the screen
+            screen.blit(text_image, text_rect)
+            # Set the font and font size
+
+        if player.level == 3:
+            font = pygame.font.Font(None, 36)
+            # Set the text to display
+            text = "Level 3"
+            # Render the text as an image
+            text_image = font.render(text, True, (0, 0, 0))
+            # Get the text image's rectangle
+            text_rect = text_image.get_rect()
+            # Set the position of the text image
+            text_rect.topright = (790, 10)
+            # Blit the text image to the screen
+            screen.blit(text_image, text_rect)
+            # Set the font and font size
+
+
+        font = pygame.font.Font(None, 36)
+        # Set the text to display
+        text = f"Score: {score}"
+        # Render the text as an image
+        text_image = font.render(text, True, (0, 0, 0))
+        # Get the text image's rectangle
+        text_rect = text_image.get_rect()
+        # Set the position of the text image
+        text_rect.topright = (400, 10)
+        # Blit the text image to the screen
+        screen.blit(text_image, text_rect)
         # draw player 
         screen.blit(player_image, (player.x, player.y))
         
 
+        if player_health == 1:
+            # Draw the first life points image
+            screen.blit(life_points_image, (10, 10))
+
+        if player_health == 2:
+            # Draw the first life points image
+            screen.blit(life_points_image, (10, 10))
+            # Draw the first life points image
+            screen.blit(life_points_image, (50, 10))
+
+        if player_health == 3:
+            # Draw the first life points image
+            screen.blit(life_points_image, (10, 10))
+            # Draw the first life points image
+            screen.blit(life_points_image, (50, 10))
+            # Draw the first life points image
+            screen.blit(life_points_image, (90, 10))
+
         # Iterate over the list of projectiles
         for projectile in projectiles:
+            for enemy in enemies:
+                projectile.speed = 1
+                # Calculate the distance between the projectile and the enemy
+                dx = enemy.x - projectile.x
+                dy = enemy.y - projectile.y
+                # Calculate the angle between the projectile and the enemy
+                angle = math.atan2(dy, dx)
+                # Calculate the new projectile position based on the angle and movement speed
+                projectile.x += projectile.speed * math.cos(angle)
+                projectile.y += projectile.speed * math.sin(angle)
             # Update the projectile
             projectile.update(projectiles)
             # Draw the projectile image on the screen
             screen.blit(projectile.image, (projectile.x, projectile.y))
       
+        
+
             # Update the enemy positions
         for enemy in enemies:
             enemy.update(player)
             screen.blit(enemy.image, (enemy.x, enemy.y))
 
+            # Check if the game is over
+        if player_health <= 0 :
+            # The game is over, so draw the game over image
+            # Set the game start flag to False
+            game_start = False
+            new_game()
+           
 
+        else:
+            # The game is not over, so update the display
+            pygame.display.flip()
 
 
         # Update the display
@@ -407,8 +531,7 @@ start_button_image = pygame.image.load("button.png")
 # Create a start button object
 start_button = pygame.Rect(100, 100, 200, 50)  # x, y, width, height
 
-# Set the game start flag to False
-game_start = False
+
 
 
 # Define the button dimensions and position
@@ -433,15 +556,67 @@ class start_button:
 start_button = start_button(50, 50, 50, 50,start_button_image )
 
 
-# Create a game loop
+def new_game():
+    # Create a game loop
+    while True:
+    
+            # Handle events
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                        # Get the mouse position
+                            mouse_x, mouse_y = pygame.mouse.get_pos() 
+                            # Check for mouse clicks on the start button
+                            if start_button.x < mouse_x < start_button.x + start_button.image.get_width() and start_button.y < mouse_y < start_button.y + start_button.image.get_height():
+                                # Set the game start flag to True
+                                start_game()
+
+
+
+# Clear the screen
+
+            screen.fill((0, 0, 0))  # fill with black
+        # If the game start flag is False, draw the start button on the screen
+            if not game_start:
+                            # Check for mouse click event
+                
+                    # Load the game over image
+                game_over_image = pygame.image.load("game_over.png")
+                
+
+                # The game is over, so draw the game over image
+                game_over_image = pygame.transform.scale(game_over_image, (800,800))
+                screen.blit(game_over_image, (0, 0))
+
+                       # Draw the start button image on the screen
+                screen.blit(start_button.image, (start_button.x, start_button.y))
+
+         
+            else:
+            
+                # Update the game state
+                pass
+            
+                # Draw the game objects
+                pass
+        
+            # Update the display
+            pygame.display.flip()
+
+
+# Create the first game loop
 while True:
+    
     # Handle events
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
 
-           # Check for mouse click event
+            # Check for mouse click event
     if event.type == pygame.MOUSEBUTTONDOWN:
         # Get the mouse position
         mouse_x, mouse_y = pygame.mouse.get_pos() 
@@ -467,10 +642,3 @@ while True:
         
     # Update the display
     pygame.display.flip()
-
-
-
-
-
-
-
