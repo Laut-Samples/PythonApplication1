@@ -53,7 +53,7 @@ cast = [pygame.transform.scale(pygame.image.load("t0.png"), (t_sx,t_sy)), pygame
 #kaitest        
 # Define the Projectile class
 class Projectile:
-    def __init__(self, x, y,radius=5):
+    def __init__(self, x, y,radius=50):
         self.x = x
         self.y = y
         self.speed = 5
@@ -122,6 +122,7 @@ class Cast:
         self.y = y
         self.freq = 20000 # timesteps until circle is complete
         self.dist = 100 # distance from projectile to player
+        self.radius = 50
         #self.firedelay = 1000 # timesteps between two projectiles
         self.centerx = centerx
         self.centery = centery
@@ -416,7 +417,7 @@ def start_game():
             # Iterate over the list of enemies
         for enemy in enemies:
                 # Check if the enemy has collided with the player
-                if enemy.x > player.x - enemy.width and enemy.x < player.x + player.width and enemy.y > player.y - enemy.width and enemy.y < player.y + player.height:
+                if enemy.x > player.x - enemy.width and enemy.x < player.x + player.width and enemy.y > player.y - enemy.height and enemy.y < player.y + player.height:
                     # The enemy has collided with the player, so handle the collision
                     player.player_health -= 1
                 # Update the enemy's position
@@ -443,14 +444,14 @@ def start_game():
                     enemy.counter = 0 
                 # Check if the enemy has been hit by a projectile
                 for projectile in projectiles:
-                    if enemy.x < projectile.x + 25 and enemy.x > projectile.x - 25 and enemy.y < projectile.y + 25 and enemy.y > projectile.y - 25: # size of enemy hitbox: (dx,dy) = (50,50)
+                    if enemy.x > projectile.x - enemy.width and enemy.x < projectile.x + projectile.radius and enemy.y > projectile.y - enemy.height and enemy.y < projectile.y + projectile.radius: # size of enemy hitbox: (dx,dy) = (50,50)
                         # The enemy has been hit by a projectile, so handle the collision
                         # Add the enemy to the list of enemies to remove
                         enemies_to_remove.append(enemy)
                         projectiles.remove(projectile)  # remove the projectile from the list
                         enemy.health -= 1
                 for cast in casts:
-                    if enemy.x < cast.x + 25 and enemy.x > cast.x - 25 and enemy.y < cast.y + 25 and enemy.y > cast.y - 25: # size of enemy hitbox: (dx,dy) = (50,50)
+                    if enemy.x > cast.x - enemy.width and enemy.x < cast.x + cast.radius and enemy.y > cast.y - enemy.height and enemy.y < cast.y + cast.radius: # size of enemy hitbox: (dx,dy) = (50,50)
                         # The enemy has been hit by a projectile, so handle the collision
                         # Add the enemy to the list of enemies to remove
                         enemies_to_remove.append(enemy)
@@ -734,8 +735,6 @@ class start_button:
 
     # Create a start button object
 start_button = start_button(50, 50, 50, 50,start_button_image )
-
-
 
 
 def new_game():
