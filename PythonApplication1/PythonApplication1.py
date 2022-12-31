@@ -1,6 +1,7 @@
 from asyncio.windows_events import NULL
 from cgi import print_arguments
 from io import SEEK_SET
+from turtle import update
 import pygame
 import math
 import random
@@ -13,7 +14,6 @@ rand = random.randint(0, 100)
 class Level:
     def __init__(self, number_of_enemies):
         self.number_of_enemies = number_of_enemies
-
 
 
 
@@ -53,13 +53,43 @@ class Projectile:
 game_start = False
 
 
+class Player:
+    def __init__(self, x, y, image, last_update_time=0, level = 1, score = 0, speed = 5):
+        self.x = x
+        self.y = y
+        self.image = image
+        self.shooting_delay = 500  # time between shots (milliseconds)
+        self.last_shot_time = 0  # time when player last shot
+        self.last_update_time = last_update_time
+        self.width = 50
+        self.height = 50
+        self.level = level
+        self.player_health = 2
+        self.score = score
+        self.speed = speed
+
+    # Load the player image
+player_image = pygame.image.load("player.png")
+    
+
+# Create a player object
+global player 
+player = Player(50, 50, player_image)        
+
+
+
 def start_game():
     # Initialize Pygame
     pygame.init()
-
     # Set the game window size
     game_width = 800
     game_height = 800
+
+
+    # Set the score needed to reach the next level
+    level_up_score = 100
+    
+    
 
     # Set up the display window
     screen = pygame.display.set_mode((game_width, game_height))
@@ -82,36 +112,7 @@ def start_game():
     background_image = pygame.transform.scale(background_image, (game_width, game_height))
 
 
-    # Load the player image
-    player_image = pygame.image.load("player.png")
-
-    class Player:
-        def __init__(self, x, y, image, last_update_time=0, level = 1):
-            self.x = x
-            self.y = y
-            self.image = image
-            self.shooting_delay = 500  # time between shots (milliseconds)
-            self.last_shot_time = 0  # time when player last shot
-            self.last_update_time = last_update_time
-            self.width = 50
-            self.height = 50
-            self.level = level
-            
-
-    # Set the player's initial score to 0
-    score = 0
-    # Set the score needed to reach the next level
-    level_up_score = 100
-
-    # Create a player object
-    player = Player(50, 50, player_image)
-
-    # Set the player's starting health
-    player_health = 3
-
-    # Set the player's movement speed
-    speed = 5
-
+    
     # Set a flag to track whether the image has been flipped
     image_flipped = False
     player_flipped = False
@@ -186,7 +187,7 @@ def start_game():
 
         
             # Check if the player's health is zero or below
-        if player_health <= 0:
+        if player.player_health <= 0:
 
             game_over = True
 
@@ -197,7 +198,7 @@ def start_game():
         rand = random.randint(0, 100)
 
         # If the random number is greater than 95, create a new enemy
-        if rand > 99 and enemy_count <= 100:
+        if rand > 95 and enemy_count <= 10:
             # Generate a random position for the enemy
             x = random.randint(50, game_width - 50)  # 50 is the enemy's radius
             y = random.randint(50, game_width - 50)
@@ -212,6 +213,9 @@ def start_game():
             enemies.append(enemy)
             enemy_count += 1
            
+        if enemy_count_destroyed == 10:
+            skilltree()
+
 
         # Set startime for shooting (doesnt work without)
         if pygame.time.get_ticks() > 1:
@@ -269,7 +273,7 @@ def start_game():
         # Check if the enemy has collided with the player
         if enemy.x < player.x + 25 and enemy.x + 25 > player.x and enemy.y < player.y + 25 and enemy.y + 25 > player.y:
             # The enemy has collided with the player, so handle the collision
-            player_health -= 1
+            player.player_health -= 1
    
         
     
@@ -325,11 +329,11 @@ def start_game():
                 # Check if the image has already been flipped
                 if not image_flipped:
                 # Flip the image horizontally
-                    player_image = pygame.transform.flip(player_image, True, False)
+                    player_image = pygame.transform.flip(player.image, True, False)
                 # Update the flag
                     image_flipped = True
                 # Update the player's x position
-                player.x -= speed
+                player.x -= player.speed
                 #if event.key == pygame.K_UP:
                 #    player.y -= speed
                 #elif event.key == pygame.K_DOWN:           
@@ -343,12 +347,12 @@ def start_game():
                 # Update the flag
                     image_flipped = False
                 # Update the player's x position
-                player.x += speed
+                player.x += player.speed
             if keys[pygame.K_UP]:
-                player.y -= speed
+                player.y -= player.speed
             #if event.key == pygame.K_DOWN:
             if keys[pygame.K_DOWN]:           
-                player.y += speed
+                player.y += player.speed
          
 
 
@@ -370,19 +374,20 @@ def start_game():
             # Remove the enemies from the list
         for enemy in enemies_to_remove:
             if enemy.health <= 0:
-                enemy_count_destroyed += 1
+                
 
 
                 try:
                     enemies.remove(enemy)
                                     # Update the player's score
-                    score += 10
+                    enemy_count_destroyed += 1
+                    player.score += 10
                 except ValueError:
                     # Do nothing, because the enemy is not in the list
                     pass
 
             # Check if the player has reached the next level
-        if score >= level_up_score:
+        if player.score >= level_up_score:
             # Increase the player's level by 1
             player.level += 1
             # Set the score needed to reach the next level
@@ -446,7 +451,7 @@ def start_game():
 
         font = pygame.font.Font(None, 36)
         # Set the text to display
-        text = f"Score: {score}"
+        text = f"Score: {player.score}"
         # Render the text as an image
         text_image = font.render(text, True, (0, 0, 0))
         # Get the text image's rectangle
@@ -456,20 +461,20 @@ def start_game():
         # Blit the text image to the screen
         screen.blit(text_image, text_rect)
         # draw player 
-        screen.blit(player_image, (player.x, player.y))
+        screen.blit(player.image, (player.x, player.y))
         
 
-        if player_health == 1:
+        if player.player_health == 1:
             # Draw the first life points image
             screen.blit(life_points_image, (10, 10))
 
-        if player_health == 2:
+        if player.player_health == 2:
             # Draw the first life points image
             screen.blit(life_points_image, (10, 10))
             # Draw the first life points image
             screen.blit(life_points_image, (50, 10))
 
-        if player_health == 3:
+        if player.player_health == 3:
             # Draw the first life points image
             screen.blit(life_points_image, (10, 10))
             # Draw the first life points image
@@ -502,7 +507,7 @@ def start_game():
             screen.blit(enemy.image, (enemy.x, enemy.y))
 
             # Check if the game is over
-        if player_health <= 0 :
+        if player.player_health <= 0 :
             # The game is over, so draw the game over image
             # Set the game start flag to False
             game_start = False
@@ -519,8 +524,6 @@ def start_game():
 
 
 
-# Initialize Pygame
-pygame.init()
 
 # Set up the display window
 screen = pygame.display.set_mode((400, 300))
@@ -531,17 +534,12 @@ start_button_image = pygame.image.load("button.png")
 # Create a start button object
 start_button = pygame.Rect(100, 100, 200, 50)  # x, y, width, height
 
-
-
-
 # Define the button dimensions and position
 button_width = 100
 button_height = 50
 button_x = (screen.get_width() - button_width) / 2
 button_y = (screen.get_height() - button_height) / 2
 
-# Load the button image
-start_button_image = pygame.image.load("button.png")
 
 class start_button:
     def __init__(self, x, y, width, height, image):
@@ -551,9 +549,10 @@ class start_button:
         self.height = height
         self.image = image
 
-
     # Create a start button object
 start_button = start_button(50, 50, 50, 50,start_button_image )
+
+
 
 
 def new_game():
@@ -605,6 +604,193 @@ def new_game():
         
             # Update the display
             pygame.display.flip()
+
+###### update button ###
+
+# Load the update button image
+update_button_image = pygame.image.load("update.png")
+# Create a start button object
+update_button = pygame.Rect(100, 100, 200, 50)  # x, y, width, height
+
+class update_button:
+    def __init__(self, x, y, width, height, image):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.image = image
+
+    # Create a update button object
+update_button = update_button(250, 200, 50, 50,update_button_image )
+
+
+###### chooice 1 ### 
+# Load the update button image
+update_button_choose_one_image = pygame.image.load("fb0.png")
+# Create a start button object
+update_button_choose_one = pygame.Rect(250, 300, 200, 50)  # x, y, width, height
+
+class update_button_choose_one:
+    def __init__(self, x, y, width, height, image):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.image = image
+
+    # Create a update button object
+update_button_choose_one = update_button_choose_one(250, 300, 100, 100,update_button_choose_one_image )
+
+###### chooice 1 ### 
+# Load the update button image
+update_button_choose_one_image = pygame.image.load("fb0.png")
+# Create a start button object
+update_button_choose_one = pygame.Rect(250, 300, 200, 50)  # x, y, width, height
+
+class update_button_choose_one:
+    def __init__(self, x, y, width, height, image):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.image = image
+
+    # Create a update button object
+update_button_choose_one = update_button_choose_one(250, 300, 100, 100,update_button_choose_one_image )
+
+###### chooice 2 ### 
+# Load the update button image
+update_button_choose_two_image = pygame.image.load("boots.png")
+# Create a start button object
+update_button_choose_two = pygame.Rect(250, 300, 200, 50)  # x, y, width, height
+
+class update_button_choose_two:
+    def __init__(self, x, y, width, height, image):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.image = image
+
+    # Create a update button object
+update_button_choose_two = update_button_choose_two(350, 300, 100, 100,update_button_choose_two_image )
+
+###### chooice 3 ### 
+# Load the update button image
+update_button_choose_three_image = pygame.image.load("life_points.png")
+# Create a start button object
+update_button_choose_three = pygame.Rect(250, 300, 200, 50)  # x, y, width, height
+
+class update_button_choose_three:
+    def __init__(self, x, y, width, height, image):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.image = image
+
+    # Create a update button object
+update_button_choose_three = update_button_choose_three(450, 300, 100, 100,update_button_choose_three_image )
+
+
+
+
+
+
+Buttons = [update_button_choose_one,update_button_choose_two]
+
+def skilltree(): 
+    # Set the game window size
+    game_width = 800
+    game_height = 800
+
+    choice_width = 100
+    choice_height = 100
+        # Load the background image
+    background_image = pygame.image.load("background.jpg")
+    # Create a game loop
+    while True:
+    
+            # Handle events
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                        # Get the mouse position
+                            mouse_x, mouse_y = pygame.mouse.get_pos() 
+                            # Check for mouse clicks on the start button
+                            if start_button.x < mouse_x < start_button.x + start_button.image.get_width() and start_button.y < mouse_y < start_button.y + start_button.image.get_height():
+                                # Set the game start flag to True
+                                start_game()
+
+
+## skill 1
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                        # Get the mouse position
+                            mouse_x, mouse_y = pygame.mouse.get_pos() 
+                            # Check for mouse clicks on the start button
+                            if update_button_choose_one.x < mouse_x < update_button_choose_one.x + update_button_choose_one.image.get_width() and update_button_choose_one.y < mouse_y < update_button_choose_one.y + update_button_choose_one.image.get_height():
+                                # Set the game start flag to True
+                                start_game()
+#skill 2
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                        # Get the mouse position
+                            mouse_x, mouse_y = pygame.mouse.get_pos() 
+                            # Check for mouse clicks on the start button
+                            if update_button_choose_two.x < mouse_x < update_button_choose_two.x + update_button_choose_two.image.get_width() and update_button_choose_two.y < mouse_y < update_button_choose_two.y + update_button_choose_two.image.get_height():
+                                # Set the game start flag to True
+                                player.speed += 5
+                                start_game()
+#skill 3
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                        # Get the mouse position
+                            mouse_x, mouse_y = pygame.mouse.get_pos() 
+                            # Check for mouse clicks on the start button
+                            if update_button_choose_three.x < mouse_x < update_button_choose_three.x + update_button_choose_three.image.get_width() and update_button_choose_three.y < mouse_y < update_button_choose_three.y + update_button_choose_three.image.get_height():
+                                # Set the game start flag to True
+                                player.player_health += 1
+                                start_game()
+
+
+# Clear the screen
+
+            screen.fill((0, 0, 0))  # fill with black
+        # If the game start flag is False, draw the start button on the screen
+            if not game_start:
+                            # Check for mouse click event
+                
+                    # Load the game over image
+                
+
+               
+                
+        # Draw the background image on the screen
+                screen.blit(background_image, (0, 0))
+                       # Draw the start button image on the screen
+                  # Scale the background image to the size of the game window
+                background_image = pygame.transform.scale(background_image, (game_width, game_height))
+
+                #screen.blit(start_button.image, (start_button.x, start_button.y))
+                screen.blit(update_button.image, (update_button.x, update_button.y))
+                screen.blit(update_button_choose_one.image, (update_button_choose_one.x, update_button_choose_one.y))
+                screen.blit(update_button_choose_two.image, (update_button_choose_two.x, update_button_choose_two.y))
+                screen.blit(update_button_choose_three.image, (update_button_choose_three.x, update_button_choose_three.y))
+         
+                
+
+            else:
+            
+                # Update the game state
+                pass
+            
+                # Draw the game objects
+                pass
+        
+            # Update the display
+            pygame.display.flip()
+
 
 
 # Create the first game loop
