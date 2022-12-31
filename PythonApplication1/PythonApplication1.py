@@ -16,6 +16,39 @@ class Level:
         self.number_of_enemies = number_of_enemies
 
 
+idle = [pygame.transform.smoothscale(pygame.image.load("knight_idle_anim_f0.png"), (50,50)), pygame.transform.smoothscale(pygame.image.load("knight_idle_anim_f1.png"), (50,50)), pygame.transform.smoothscale(pygame.image.load("knight_idle_anim_f2.png"), (50,50)), pygame.transform.smoothscale(pygame.image.load("knight_idle_anim_f3.png"), (50,50)), 
+        pygame.transform.smoothscale(pygame.image.load("knight_idle_anim_f4.png"), (50,50)), pygame.transform.smoothscale(pygame.image.load("knight_idle_anim_f5.png"), (50,50))]
+
+walkRight = [pygame.transform.smoothscale(pygame.image.load("knight_run_anim_f0.png"), (50,50)), pygame.transform.smoothscale(pygame.image.load("knight_run_anim_f1.png"), (50,50)), pygame.transform.smoothscale(pygame.image.load("knight_run_anim_f2.png"), (50,50)), pygame.transform.smoothscale(pygame.image.load("knight_run_anim_f3.png"), (50,50)), 
+             pygame.transform.smoothscale(pygame.image.load("knight_run_anim_f4.png"), (50,50)), pygame.transform.smoothscale(pygame.image.load("knight_run_anim_f5.png"), (50,50))]
+
+walkLeft = [pygame.transform.flip(pygame.transform.smoothscale(pygame.image.load("knight_run_anim_f0.png"), (50,50)), True, False), pygame.transform.flip(pygame.transform.smoothscale(pygame.image.load("knight_run_anim_f1.png"), (50,50)), True, False), pygame.transform.flip(pygame.transform.smoothscale(pygame.image.load("knight_run_anim_f2.png"), (50,50)), True, False), pygame.transform.flip(pygame.transform.smoothscale(pygame.image.load("knight_run_anim_f3.png"), (50,50)), True, False), 
+             pygame.transform.flip(pygame.transform.smoothscale(pygame.image.load("knight_run_anim_f4.png"), (50,50)), True, False), pygame.transform.flip(pygame.transform.smoothscale(pygame.image.load("knight_run_anim_f5.png"), (50,50)), True, False)]
+
+
+#Goblin enemy type
+goblin_walkRight = [pygame.transform.smoothscale(pygame.image.load("goblin_run_anim_f0.png"), (50,50)), pygame.transform.smoothscale(pygame.image.load("goblin_run_anim_f1.png"), (50,50)), pygame.transform.smoothscale(pygame.image.load("goblin_run_anim_f2.png"), (50,50)), pygame.transform.smoothscale(pygame.image.load("goblin_run_anim_f3.png"), (50,50)), 
+             pygame.transform.smoothscale(pygame.image.load("goblin_run_anim_f4.png"), (50,50)), pygame.transform.smoothscale(pygame.image.load("goblin_run_anim_f5.png"), (50,50))]
+
+goblin_walkLeft = [pygame.transform.flip(pygame.transform.smoothscale(pygame.image.load("goblin_run_anim_f0.png"), (50,50)), True, False), pygame.transform.flip(pygame.transform.smoothscale(pygame.image.load("goblin_run_anim_f1.png"), (50,50)), True, False), pygame.transform.flip(pygame.transform.smoothscale(pygame.image.load("goblin_run_anim_f2.png"), (50,50)), True, False), pygame.transform.flip(pygame.transform.smoothscale(pygame.image.load("goblin_run_anim_f3.png"), (50,50)), True, False), 
+             pygame.transform.flip(pygame.transform.smoothscale(pygame.image.load("goblin_run_anim_f4.png"), (50,50)), True, False), pygame.transform.flip(pygame.transform.smoothscale(pygame.image.load("goblin_run_anim_f5.png"), (50,50)), True, False)]
+
+#fireball_sprites
+fb_sx=100
+fb_sy=100
+fireball = [pygame.transform.smoothscale(pygame.image.load("fb0.png"), (fb_sx,fb_sy)), pygame.transform.smoothscale(pygame.image.load("fb1.png"), (fb_sx,fb_sy)), pygame.transform.smoothscale(pygame.image.load("fb2.png"), (fb_sx,fb_sy)), pygame.transform.smoothscale(pygame.image.load("fb3.png"), (fb_sx,fb_sy)), 
+             pygame.transform.smoothscale(pygame.image.load("fb4.png"), (fb_sx,fb_sy)), pygame.transform.smoothscale(pygame.image.load("fb5.png"), (fb_sx,fb_sy))]
+
+fb_delay_counter = 0
+#fb_counter
+t_sx=50
+t_sy=50
+cast = [pygame.transform.scale(pygame.image.load("t0.png"), (t_sx,t_sy)), pygame.transform.scale(pygame.image.load("t1.png"), (t_sx,t_sy)), pygame.transform.scale(pygame.image.load("t2.png"), (t_sx,t_sy)), pygame.transform.scale(pygame.image.load("t3.png"), (t_sx,t_sy)), 
+             pygame.transform.scale(pygame.image.load("t4.png"), (t_sx,t_sy)), pygame.transform.scale(pygame.image.load("t5.png"), (t_sx,t_sy))]
+
+
+
+
 
 #kaitest        
 # Define the Projectile class
@@ -23,20 +56,53 @@ class Projectile:
     def __init__(self, x, y,radius=5):
         self.x = x
         self.y = y
-        self.speed = 12
+        self.speed = 5
         self.radius = radius  # add radius attribute
-        self.image = pygame.image.load("firearrow.png")  # load projectile image
+        self.image = pygame.transform.smoothscale(pygame.image.load("fb0.png"), (fb_sx,fb_sy))  # load projectile image
         self.timer = 0  # elapsed time since projectile was created
-        self.delay = 2000  # delay before projectile disappears (milliseconds)
+        self.delay = 1000  # delay before projectile disappears (milliseconds)
         self.created_time = pygame.time.get_ticks()  # time when projectile was created
         self.xdir = 0
         self.ydir = 0
+        self.counter = 0 # sprite counter 0 to 5 updated in update()
+        self.delay_counter = 0 # so counter doesnt update every timestep
 
     def update(self, projectiles):
     # Update the projectile's position
         #xdir,ydir are set in game loop for every created projectile
+        #y direction is mirrored -1 => up, +1 => down
         self.x += self.xdir * self.speed 
         self.y += self.ydir * self.speed
+        if self.xdir == 0:
+            if self.ydir == 0:
+                self.x += self.speed # shoot right if idle position
+                self.image = fireball[self.counter]
+            elif self.ydir == -1:
+                self.image = pygame.transform.rotate(fireball[self.counter], 90)
+            elif self.ydir == 1:
+                self.image = pygame.transform.rotate(fireball[self.counter], -90)
+        elif self.xdir == -1:
+            if self.ydir == 0:
+                self.image = pygame.transform.rotate(fireball[self.counter], 180)
+            elif self.ydir == -1:
+                self.image = pygame.transform.rotate(fireball[self.counter], 135)
+            elif self.ydir == 1:
+                self.image = pygame.transform.rotate(fireball[self.counter], 225)
+        elif self.xdir == 1:
+            if self.ydir == 0:
+                self.image = fireball[self.counter]
+            elif self.ydir == -1:
+                self.image = pygame.transform.rotate(fireball[self.counter], 45)
+            elif self.ydir == 1:
+                self.image = pygame.transform.rotate(fireball[self.counter], -45)
+        #self.image = fireball[self.counter]
+        self.delay_counter +=1
+        if self.delay_counter >5: # number of timesteps between counter increase
+            self.delay_counter =0
+            self.counter +=1
+        if self.counter > 5:
+            self.counter = 0
+
 
         # Get the current time
         current_time = pygame.time.get_ticks()
@@ -48,6 +114,60 @@ class Projectile:
         if self.timer > self.delay:
             # Remove the projectile from the list
             projectiles.remove(self)
+
+
+class Cast:
+    def __init__(self, x, y, centerx, centery):
+        self.x = x
+        self.y = y
+        self.freq = 20000 # timesteps until circle is complete
+        self.dist = 100 # distance from projectile to player
+        #self.firedelay = 1000 # timesteps between two projectiles
+        self.centerx = centerx
+        self.centery = centery
+        self.image = pygame.transform.scale(pygame.image.load("t0.png"), (t_sx,t_sy))  # load projectile image
+        self.timer = 0  # elapsed time since projectile was created
+        self.delay = 5000  # delay before projectile disappears (milliseconds)
+        self.created_time = pygame.time.get_ticks()  # time when projectile was created
+        #self.xdir = 1
+        #self.ydir = 0
+        self.counter = 0 # sprite counter 0 to 5 updated in update()
+        self.delay_counter = 0 # so counter doesnt update every timestep
+        self.counter_pos = 0
+
+    def update(self, casts):
+    # Update the casts's position
+        #xdir,ydir are set in game loop for every created projectile
+        #y direction is mirrored -1 => up, +1 => down
+        self.x = self.centerx + self.dist * math.sin((self.counter_pos/self.freq)*360) + 30
+        self.y = self.centery + self.dist * math.cos((self.counter_pos/self.freq)*360) + 20
+        self.image = cast[self.counter]
+        self.delay_counter +=1
+        if self.delay_counter >50: # number of timesteps between counter increase
+            self.delay_counter =0
+            self.counter +=1
+        if self.counter > 5:
+            self.counter = 0
+        
+        self.counter_pos += 1
+        if self.counter_pos > self.freq:
+            self.counter_pos = 0
+
+
+        #self.xdir = (1.0/(math.sqrt(((self.x - 20) - self.centerx)**2.0 + (self.y - self.centery)**2.0)))*((self.x - 20) - self.centerx)
+        #self.ydir = (1.0)*math.sin(math.acos(self.xdir))
+
+
+        # Get the current time
+        current_time = pygame.time.get_ticks()
+
+        # Calculate the elapsed time
+        self.timer = current_time - self.created_time
+
+        # Check if the projectile has been on the screen for more than the delay
+        if self.timer > self.delay:
+            # Remove the projectile from the list
+            casts.remove(self)
 
 # Set the game start flag to False
 game_start = False
@@ -69,7 +189,7 @@ class Player:
         self.speed = speed
 
     # Load the player image
-player_image = pygame.image.load("player.png")
+player_image = pygame.transform.smoothscale(pygame.image.load("knight_idle_anim_f0.png"), (50,50))
     
 
 # Create a player object
@@ -120,11 +240,13 @@ def start_game():
     
 
     class Enemy:
-        def __init__(self, x, y, image, speed = 1, health =2):
+        def __init__(self, x, y, image, health =2):
             self.x = x
             self.y = y
             self.image = image
             self.speed = 1
+            self.counter = 0
+            self.delay_counter = 0
             self.health = health
 
         def update(self, player):
@@ -140,7 +262,7 @@ def start_game():
 
 
     # Load the enemy image
-    enemy_image = pygame.image.load("enemy1.png")
+    enemy_image = pygame.image.load("goblin_idle_anim_f0.png")
 
     # Load the enemy spawn indicator image
     enemy_spawn_indicator_image = pygame.image.load("enemy_spawn_indicator.png")
@@ -162,12 +284,25 @@ def start_game():
     # Create a list to store the projectiles
     projectiles = []
 
+    # Create a list to store the casts
+    casts = []
+
+
+
     enemy_count = 0
 
     enemy_count_destroyed = 0
     
     # for automatic shooting
     last_space_down_time = 0
+
+    last_cast_time = 0
+
+    idle_counter = 0
+
+    walk_counter = 0
+
+    walk_delay_counter = 0
 
     # Set the game start flag to False
     game_start = False
@@ -220,46 +355,45 @@ def start_game():
         # Set startime for shooting (doesnt work without)
         if pygame.time.get_ticks() > 1:
             
-            #if not space_down:
-                # Update the state of the space bar
-                #space_down = True
-                #last_space_down_time = pygame.time.get_ticks()
-                
-            #else:
-                # Get the current time
+             
+             # Get the current time
              current_time = pygame.time.get_ticks()
 
              # Check if the elapsed time since the player last shot is greater than the shooting delay
              if current_time - last_space_down_time > player.shooting_delay:
                 # Create a new projectile 2 pixels away from the player's position
-                projectile = Projectile(player.x + 2, player.y)
+                projectile = Projectile(player.x - 20, player.y - 20)
                 # Check player movement direction
                 if event.type == pygame.KEYDOWN:
                         keys = pygame.key.get_pressed()
                         if keys[pygame.K_LEFT]:     
                             projectile.xdir = -1
-                            projectile.image = pygame.transform.rotate(projectile.image, -135)
+                            #projectile.image = pygame.transform.rotate(projectile.image, -135)
                         if keys[pygame.K_RIGHT]:
                             projectile.xdir = 1
-                            projectile.image = pygame.transform.rotate(projectile.image, 45)
+                            #projectile.image = pygame.transform.rotate(projectile.image, 45)
                         if keys[pygame.K_UP]:
                             projectile.ydir = -1
-                            projectile.image = pygame.transform.rotate(projectile.image, -225)
+                            #projectile.image = pygame.transform.rotate(projectile.image, -225)
                         if keys[pygame.K_DOWN]:
                             projectile.ydir = 1
-                            projectile.image = pygame.transform.rotate(projectile.image, -45)
-                        if keys[pygame.K_DOWN] and keys[pygame.K_LEFT]:
-                            projectile.image = pygame.transform.rotate(projectile.image, 90)
-                        if keys[pygame.K_UP] and keys[pygame.K_RIGHT]:
-                            projectile.image = pygame.transform.rotate(projectile.image, -90)
-                        if keys[pygame.K_UP] and keys[pygame.K_LEFT]:
-                            projectile.image = pygame.transform.rotate(projectile.image, 180)
+                            #projectile.image = pygame.transform.rotate(projectile.image, -45)
+                        #if keys[pygame.K_DOWN] and keys[pygame.K_LEFT]:
+                            #projectile.image = pygame.transform.rotate(projectile.image, 90)
+                        #if keys[pygame.K_UP] and keys[pygame.K_RIGHT]:
+                            #projectile.image = pygame.transform.rotate(projectile.image, -90)
+                        #if keys[pygame.K_UP] and keys[pygame.K_LEFT]:
+                            #projectile.image = pygame.transform.rotate(projectile.image, 180)
                 # Add the projectile to the list
                 projectiles.append(projectile)
 
                 # Update the time when the player last shot
                 last_space_down_time = current_time
-                       
+
+             if current_time - last_cast_time > 4.0*player.shooting_delay:
+                cast = Cast(player.x - 20, player.y -20, player.x - 20, player.y - 20)
+                casts.append(cast)
+                last_cast_time = current_time
         
 
         # Limit the frame rate to 60 FPS
@@ -282,24 +416,41 @@ def start_game():
             # Iterate over the list of enemies
         for enemy in enemies:
 
-            # Update the enemy's position
-            # Calculate the distance between the enemy and the player
-            dx = player.x - enemy.x
-            dy = player.y - enemy.y
-            # Calculate the angle between the enemy and the player
-            angle = math.atan2(dy, dx)
-            # Calculate the new enemy position based on the angle and movement speed
-            enemy.x += enemy.speed * math.cos(angle)
-            enemy.y += enemy.speed * math.sin(angle)
+                # Update the enemy's position
+                # Calculate the distance between the enemy and the player
+                dx = player.x - enemy.x
+                dy = player.y - enemy.y
+                # Calculate the angle between the enemy and the player
+                angle = math.atan2(dy, dx)
+                # Calculate the new enemy position based on the angle and movement speed
+                enemy.x += enemy.speed * math.cos(angle)
+                enemy.y += enemy.speed * math.sin(angle)
 
-            # Check if the enemy has been hit by a projectile
-            for projectile in projectiles:
-                if enemy.x < projectile.x + 50 and enemy.x > projectile.x - 50 and enemy.y < projectile.y + 50 and enemy.y > projectile.y - 50:
-                   # The enemy has been hit by a projectile, so handle the collision
-                   # Add the enemy to the list of enemies to remove
-                   enemies_to_remove.append(enemy)
-                   projectiles.remove(projectile)  # remove the projectile from the list
-                   enemy.health -= 1
+                if math.cos(angle) < 0:
+                    enemy.image = goblin_walkLeft[enemy.counter]
+                else: 
+                    enemy.image = goblin_walkRight[enemy.counter]
+                enemy.delay_counter +=1
+                if enemy.delay_counter >4:  # number of timesteps between counter increase
+                    enemy.delay_counter = 0
+                    enemy.counter += 1
+                if enemy.counter > 5: # number of frames until animation reset
+                    enemy.counter = 0 
+                # Check if the enemy has been hit by a projectile
+                for projectile in projectiles:
+                    if enemy.x < projectile.x + 25 and enemy.x > projectile.x - 25 and enemy.y < projectile.y + 25 and enemy.y > projectile.y - 25: # size of enemy hitbox: (dx,dy) = (50,50)
+                        # The enemy has been hit by a projectile, so handle the collision
+                        # Add the enemy to the list of enemies to remove
+                        enemies_to_remove.append(enemy)
+                        projectiles.remove(projectile)  # remove the projectile from the list
+                        enemy.health -= 1
+                for cast in casts:
+                    if enemy.x < cast.x + 25 and enemy.x > cast.x - 25 and enemy.y < cast.y + 25 and enemy.y > cast.y - 25: # size of enemy hitbox: (dx,dy) = (50,50)
+                        # The enemy has been hit by a projectile, so handle the collision
+                        # Add the enemy to the list of enemies to remove
+                        enemies_to_remove.append(enemy)
+                        casts.remove(cast)  # remove the projectile from the list
+                        enemy.health -= 1
 
 
         
@@ -311,11 +462,12 @@ def start_game():
             enemy.x = 0
         elif enemy.x > game_width - 50:  # 50 is the player's radius
             enemy.x = game_width - 50
+        elif enemy.x < 0:
+            enemy.x = 0
         if enemy.y < 0:
             enemy.y = 0
         elif enemy.y > game_height - 50:  # 50 is the player's radius
             enemy.y = game_height - 50
-
 
 
         # Update the player's position (example code)
@@ -326,12 +478,13 @@ def start_game():
         if event.type == pygame.KEYDOWN:
             keys = pygame.key.get_pressed()
             if keys[pygame.K_LEFT]:                                                                                                         
-                # Check if the image has already been flipped
-                if not image_flipped:
-                # Flip the image horizontally
-                    player_image = pygame.transform.flip(player.image, True, False)
-                # Update the flag
-                    image_flipped = True
+                player.image = walkLeft[walk_counter]
+                walk_delay_counter +=1
+                if walk_delay_counter >10:
+                    walk_delay_counter = 0
+                    walk_counter += 1
+                if walk_counter > 5:
+                    walk_counter = 0
                 # Update the player's x position
                 player.x -= player.speed
                 #if event.key == pygame.K_UP:
@@ -340,19 +493,49 @@ def start_game():
                 #    player.y += speed
 
             if keys[pygame.K_RIGHT]:
-                # Check if the image has already been flipped
-                if image_flipped:
-                # Flip the image horizontally
-                    player_image = pygame.transform.flip(player_image, True, False)
-                # Update the flag
-                    image_flipped = False
+                player.image = walkRight[walk_counter]
+                #player_image = pygame.transform.flip(player_image, True, False)
+                walk_delay_counter +=1
+                if walk_delay_counter >10:
+                    walk_delay_counter = 0
+                    walk_counter += 1
+                if walk_counter > 5:
+                    walk_counter = 0
                 # Update the player's x position
                 player.x += player.speed
             if keys[pygame.K_UP]:
+                player.image = walkRight[walk_counter]
+                #player_image = pygame.transform.flip(player_image, True, False)
+                walk_delay_counter +=1
+                if walk_delay_counter >10:
+                    walk_delay_counter = 0
+                    walk_counter += 1
+                if walk_counter > 5:
+                    walk_counter = 0
                 player.y -= player.speed
             #if event.key == pygame.K_DOWN:
-            if keys[pygame.K_DOWN]:           
+            if keys[pygame.K_DOWN]:   
+                player.image = walkLeft[walk_counter]
+                walk_delay_counter +=1
+                if walk_delay_counter >10:
+                    walk_delay_counter = 0
+                    walk_counter += 1
+                if walk_counter > 5:
+                    walk_counter = 0
                 player.y += player.speed
+        else:
+            player.image = idle[idle_counter]
+            walk_delay_counter +=1
+            if walk_delay_counter >10:
+                walk_delay_counter = 0
+                idle_counter += 1
+            if idle_counter > 5:
+                idle_counter = 0
+            #player.x = player.x
+
+        for cast in casts:
+            cast.centerx = player.x - 20
+            cast.centery = player.y - 20
          
 
 
@@ -484,22 +667,17 @@ def start_game():
 
         # Iterate over the list of projectiles
         for projectile in projectiles:
-            for enemy in enemies:
-                projectile.speed = 1
-                # Calculate the distance between the projectile and the enemy
-                dx = enemy.x - projectile.x
-                dy = enemy.y - projectile.y
-                # Calculate the angle between the projectile and the enemy
-                angle = math.atan2(dy, dx)
-                # Calculate the new projectile position based on the angle and movement speed
-                projectile.x += projectile.speed * math.cos(angle)
-                projectile.y += projectile.speed * math.sin(angle)
             # Update the projectile
             projectile.update(projectiles)
             # Draw the projectile image on the screen
             screen.blit(projectile.image, (projectile.x, projectile.y))
-      
-        
+
+        # iterate over casts
+        for cast in casts:
+            # Update the cast
+            cast.update(casts)
+            # Draw the cast image on the screen
+            screen.blit(cast.image, (cast.x, cast.y))
 
             # Update the enemy positions
         for enemy in enemies:
