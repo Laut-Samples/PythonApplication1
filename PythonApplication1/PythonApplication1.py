@@ -187,6 +187,7 @@ class Player:
         self.player_health = 2
         self.score = score
         self.speed = speed
+        self.cast_on = False # cast projectile off = 0, on = 1
 
     # Load the player image
 player_image = pygame.transform.smoothscale(pygame.image.load("knight_idle_anim_f0.png"), (50,50))
@@ -195,7 +196,6 @@ player_image = pygame.transform.smoothscale(pygame.image.load("knight_idle_anim_
 # Create a player object
 global player 
 player = Player(50, 50, player_image)        
-
 
 
 def start_game():
@@ -208,7 +208,6 @@ def start_game():
 
     # Set the score needed to reach the next level
     level_up_score = 100
-    
     
 
     # Set up the display window
@@ -305,10 +304,12 @@ def start_game():
     walk_delay_counter = 0
 
     # Set the game start flag to False
+    global game_start 
     game_start = False
 
 
     # Set the game over flag
+    global game_over 
     game_over = False
 
     # Create a game loop
@@ -389,11 +390,11 @@ def start_game():
 
                 # Update the time when the player last shot
                 last_space_down_time = current_time
-
-             if current_time - last_cast_time > 4.0*player.shooting_delay:
-                cast = Cast(player.x - 20, player.y -20, player.x - 20, player.y - 20)
-                casts.append(cast)
-                last_cast_time = current_time
+             if player.cast_on == True:
+                 if current_time - last_cast_time > 4.0*player.shooting_delay:
+                    cast = Cast(player.x - 20, player.y -20, player.x - 20, player.y - 20)
+                    casts.append(cast)
+                    last_cast_time = current_time
         
 
         # Limit the frame rate to 60 FPS
@@ -744,19 +745,14 @@ def new_game():
                 sys.exit()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                        # Get the mouse position
-                            mouse_x, mouse_y = pygame.mouse.get_pos() 
-                            # Check for mouse clicks on the start button
-                            if start_button.x < mouse_x < start_button.x + start_button.image.get_width() and start_button.y < mouse_y < start_button.y + start_button.image.get_height():
-                                # Set the game start flag to True
-                                start_game()
-
-
-
-# Clear the screen
-
-            screen.fill((0, 0, 0))  # fill with black
-        # If the game start flag is False, draw the start button on the screen
+                # Get the mouse position
+                    mouse_x, mouse_y = pygame.mouse.get_pos() 
+                    # Check for mouse clicks on the start button
+                    if start_button.x < mouse_x < start_button.x + start_button.image.get_width() and start_button.y < mouse_y < start_button.y + start_button.image.get_height():
+                        # Set the game start flag to True
+                        player.player_health = 2
+                        start_game()
+            screen.fill((0, 0, 0))
             if not game_start:
                             # Check for mouse click event
                 
@@ -804,7 +800,7 @@ update_button = update_button(250, 200, 50, 50,update_button_image )
 
 ###### chooice 1 ### 
 # Load the update button image
-update_button_choose_one_image = pygame.image.load("fb0.png")
+update_button_choose_one_image = pygame.image.load("t5.png")
 # Create a start button object
 update_button_choose_one = pygame.Rect(250, 300, 200, 50)  # x, y, width, height
 
@@ -819,22 +815,6 @@ class update_button_choose_one:
     # Create a update button object
 update_button_choose_one = update_button_choose_one(250, 300, 100, 100,update_button_choose_one_image )
 
-###### chooice 1 ### 
-# Load the update button image
-update_button_choose_one_image = pygame.image.load("fb0.png")
-# Create a start button object
-update_button_choose_one = pygame.Rect(250, 300, 200, 50)  # x, y, width, height
-
-class update_button_choose_one:
-    def __init__(self, x, y, width, height, image):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-        self.image = image
-
-    # Create a update button object
-update_button_choose_one = update_button_choose_one(250, 300, 100, 100,update_button_choose_one_image )
 
 ###### chooice 2 ### 
 # Load the update button image
@@ -899,18 +879,9 @@ def skilltree():
                         # Get the mouse position
                             mouse_x, mouse_y = pygame.mouse.get_pos() 
                             # Check for mouse clicks on the start button
-                            if start_button.x < mouse_x < start_button.x + start_button.image.get_width() and start_button.y < mouse_y < start_button.y + start_button.image.get_height():
-                                # Set the game start flag to True
-                                start_game()
-
-
-## skill 1
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                        # Get the mouse position
-                            mouse_x, mouse_y = pygame.mouse.get_pos() 
-                            # Check for mouse clicks on the start button
                             if update_button_choose_one.x < mouse_x < update_button_choose_one.x + update_button_choose_one.image.get_width() and update_button_choose_one.y < mouse_y < update_button_choose_one.y + update_button_choose_one.image.get_height():
                                 # Set the game start flag to True
+                                player.cast_on = True
                                 start_game()
 #skill 2
             if event.type == pygame.MOUSEBUTTONDOWN:
