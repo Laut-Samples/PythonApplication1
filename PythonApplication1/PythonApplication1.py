@@ -247,6 +247,8 @@ def start_game():
             self.counter = 0
             self.delay_counter = 0
             self.health = health
+            self.width = 50
+            self.height = 50
 
         def update(self, player):
         # Update the enemy's position based on the player's position
@@ -405,10 +407,7 @@ def start_game():
 
     
             
-        # Check if the enemy has collided with the player
-        if enemy.x < player.x + 25 and enemy.x + 25 > player.x and enemy.y < player.y + 25 and enemy.y + 25 > player.y:
-            # The enemy has collided with the player, so handle the collision
-            player.player_health -= 1
+
    
         
     
@@ -416,7 +415,10 @@ def start_game():
 
             # Iterate over the list of enemies
         for enemy in enemies:
-
+                # Check if the enemy has collided with the player
+                if enemy.x > player.x - enemy.width and enemy.x < player.x + player.width and enemy.y > player.y - enemy.width and enemy.y < player.y + player.height:
+                    # The enemy has collided with the player, so handle the collision
+                    player.player_health -= 1
                 # Update the enemy's position
                 # Calculate the distance between the enemy and the player
                 dx = player.x - enemy.x
@@ -426,6 +428,8 @@ def start_game():
                 # Calculate the new enemy position based on the angle and movement speed
                 enemy.x += enemy.speed * math.cos(angle)
                 enemy.y += enemy.speed * math.sin(angle)
+
+
 
                 if math.cos(angle) < 0:
                     enemy.image = goblin_walkLeft[enemy.counter]
@@ -575,7 +579,7 @@ def start_game():
             # Increase the player's level by 1
             player.level += 1
             # Set the score needed to reach the next level
-            level_up_score += 100
+            level_up_score += 1000
             # Update the display
                             # Set the font and font size
             
