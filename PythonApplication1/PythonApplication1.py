@@ -262,14 +262,16 @@ def start_game():
     background_image = pygame.image.load("background.jpg")
 
     # Create a rect object for the background image
-    background_rect = pygame.Rect(0, 0, 400, 300)  # (x, y, width, height)
+    #background_rect = pygame.Rect(0, 0, 400, 300)  # (x, y, width, height)
 
 
     # Get the size of the game window
-    game_width, game_height = screen.get_size()
+    #game_width, game_height = screen.get_size()
+    background_width = game_width - 300
+    background_height = game_height - 300
 
     # Scale the background image to the size of the game window
-    background_image = pygame.transform.scale(background_image, (game_width, game_height))
+    background_image = pygame.transform.scale(background_image, (background_width, background_height))
 
 
     
@@ -633,7 +635,8 @@ def start_game():
 
 
         # Draw the background image on the screen
-        screen.blit(background_image, (100, 100))
+        #screen.blit(background_image, (0, 0))
+        screen.blit(background_image, (((-1.0)*player.x + game_width/2.0) - background_width/2.0, (player.y  + game_height/2.0) - background_height/2.0))
         
         if player.level == 1:
             font = pygame.font.Font(None, 36)
@@ -693,8 +696,8 @@ def start_game():
 
 
         # draw player 
-        screen.blit(player.image, (player.x, player.y))
-        
+        #screen.blit(player.image, (player.x, player.y))
+        screen.blit(player.image, (game_width/2.0, game_height/2.0))
 
         if player.player_health == 1:
             # Draw the first life points image
