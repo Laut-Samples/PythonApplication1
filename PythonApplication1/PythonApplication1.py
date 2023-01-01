@@ -35,7 +35,8 @@
 # Blitze 
 
 
-
+from Player_.Class_Player import Player
+from Enemys.Enemy_1 import Enemy_1
 
 from asyncio.windows_events import NULL
 from cgi import print_arguments
@@ -213,21 +214,6 @@ class Cast:
 # Set the game start flag to False
 game_start = False
 
-class Player:
-    def __init__(self, x, y, image, last_update_time=0, level = 1, score = 0, speed = 5):
-        self.x = x
-        self.y = y
-        self.image = image
-        self.shooting_delay = 500  # time between shots (milliseconds)
-        self.last_shot_time = 0  # time when player last shot
-        self.last_update_time = last_update_time
-        self.width = 50
-        self.height = 50
-        self.level = level
-        self.player_health = 2
-        self.score = score
-        self.speed = speed
-        self.cast_on = False # cast projectile off = 0, on = 1
 
 
     # Load the player image
@@ -237,6 +223,7 @@ player_image = pygame.transform.smoothscale(pygame.image.load("knight_idle_anim_
 # Create a player object
 global player 
 player = Player(50, 50, player_image)        
+
 
 
 def start_game():
@@ -281,29 +268,6 @@ def start_game():
 
     
 
-    class Enemy:
-        def __init__(self, x, y, image, health =2):
-            self.x = x
-            self.y = y
-            self.image = image
-            self.speed = 1
-            self.counter = 0
-            self.delay_counter = 0
-            self.health = health
-            self.width = 50
-            self.height = 50
-
-        def update(self, player):
-        # Update the enemy's position based on the player's position
-            if self.x < player.x:
-                self.x += 1
-            elif self.x > player.x:
-                self.x -= 1
-            if self.y < player.y:
-                self.y += 1
-            elif self.y > player.y:
-                self.y -= 1
-
 
     # Load the enemy image
     enemy_image = pygame.image.load("goblin_idle_anim_f0.png")
@@ -312,8 +276,11 @@ def start_game():
     enemy_spawn_indicator_image = pygame.image.load("enemy_spawn_indicator.png")
 
 
+    
+    enemy = Enemy_1(200, 50, enemy_image, 1)
+
     # Create an enemy object
-    enemy = Enemy(200, 50, enemy_image, 1)
+
 
     # Add the enemy to the list of enemies
     enemies = [enemy]
@@ -388,7 +355,7 @@ def start_game():
             
             # Draw the spawn indicator image
             # Create a new enemy object
-            enemy = Enemy(x, y, enemy_image, 1)
+            enemy = Enemy_1(x, y, enemy_image, 1)
                         # Clear the screen
             # Add the enemy to the list of enemies
             enemies.append(enemy)
@@ -636,7 +603,7 @@ def start_game():
 
         # Draw the background image on the screen
         #screen.blit(background_image, (0, 0))
-        screen.blit(background_image, (((-1.0)*player.x + game_width/2.0) - background_width/2.0, (player.y  + game_height/2.0) - background_height/2.0))
+        screen.blit(background_image, (((-1.0)*player.x + game_width/2.0) - background_width/2.0, (((-1.0)*player.y  + game_height/2.0) - background_height/2.0)))
         
         if player.level == 1:
             font = pygame.font.Font(None, 36)
