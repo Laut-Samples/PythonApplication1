@@ -1,3 +1,42 @@
+#next steps:
+
+# FIRST STEP 
+
+##GAME##
+
+#- items werden eher gedropped bei höheren leveln
+#- high score 
+#- score auf game over
+#- hit counter
+#- player eingabe und ingame speicher wer gerade spielt
+# bildschirm folgt spieler
+# zielen mit maus und bewegen mit WASD
+
+
+### ENEMY####
+
+# Lebensbalken 
+# rückstoß bei treffer 
+
+##CHARACKTER##
+
+#- ausweichen  
+#- dash zur seite spring - skill (level 5 + speed auf 10 
+#- richtung schießen als lezttes geguckt
+#- start waffel auswahl 
+#- start charackter auswahl 
+# spieler und enemys etwas kleiner 
+
+
+
+### WAFFEN ##
+
+# Pfeil und Bogen
+# Blitze 
+
+
+
+
 from asyncio.windows_events import NULL
 from cgi import print_arguments
 from io import SEEK_SET
@@ -5,6 +44,7 @@ from turtle import update
 import pygame
 import math
 import random
+#from PythonApplication1 import player
 
 # In the game loop...
 
@@ -172,7 +212,6 @@ class Cast:
 # Set the game start flag to False
 game_start = False
 
-
 class Player:
     def __init__(self, x, y, image, last_update_time=0, level = 1, score = 0, speed = 5):
         self.x = x
@@ -189,9 +228,10 @@ class Player:
         self.speed = speed
         self.cast_on = False # cast projectile off = 0, on = 1
 
+
     # Load the player image
 player_image = pygame.transform.smoothscale(pygame.image.load("knight_idle_anim_f0.png"), (50,50))
-    
+
 
 # Create a player object
 global player 
@@ -592,7 +632,7 @@ def start_game():
 
 
         # Draw the background image on the screen
-        screen.blit(background_image, (0, 0))
+        screen.blit(background_image, (100, 100))
         
         if player.level == 1:
             font = pygame.font.Font(None, 36)
@@ -648,6 +688,9 @@ def start_game():
         text_rect.topright = (400, 10)
         # Blit the text image to the screen
         screen.blit(text_image, text_rect)
+
+
+
         # draw player 
         screen.blit(player.image, (player.x, player.y))
         
@@ -759,7 +802,20 @@ def new_game():
             screen.fill((0, 0, 0))
             if not game_start:
                             # Check for mouse click event
-                
+                font = pygame.font.Font(None, 36)
+                # Set the text to display
+                text = f"Score: {player.score}"
+                # Render the text as an image
+                text_image = font.render(text, True, (0, 0, 0))
+                # Get the text image's rectangle
+                text_rect = text_image.get_rect()
+                # Set the position of the text image
+                text_rect.topright = (400, 10)
+                # Blit the text image to the screen
+                screen.blit(text_image, text_rect)
+                # draw player 
+                screen.blit(player.image, (player.x, player.y))
+        
                     # Load the game over image
                 game_over_image = pygame.image.load("game_over.png")
                 
