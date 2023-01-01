@@ -753,6 +753,10 @@ def new_game():
                     # Check for mouse clicks on the start button
                     if start_button.x < mouse_x < start_button.x + start_button.image.get_width() and start_button.y < mouse_y < start_button.y + start_button.image.get_height():
                         # Set the game start flag to True
+                        player.score = 0
+                        player.level = 0
+                        player.cast_on = False
+                        player.speed = 5
                         player.player_health = 2
                         start_game()
             screen.fill((0, 0, 0))
@@ -864,6 +868,8 @@ def skilltree():
     # Set the game window size
     game_width = 800
     game_height = 800
+
+
 
     choice_width = 100
     choice_height = 100
