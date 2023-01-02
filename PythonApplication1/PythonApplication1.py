@@ -427,7 +427,7 @@ def start_game():
             # Iterate over the list of enemies
         for enemy in enemies:
                 # Check if the enemy has collided with the player
-                if enemy.x > player.x - enemy.width and enemy.x < player.x + player.width and enemy.y > player.y - enemy.height and enemy.y < player.y + player.height:
+                if enemy.x > player.x - 0.7*enemy.width and enemy.x < player.x + 0.7*player.width and enemy.y > player.y - 0.7*enemy.height and enemy.y < player.y + 0.7*player.height:
                     # The enemy has collided with the player, so handle the collision
                     player.player_health -= 1
                 # Update the enemy's position
@@ -489,58 +489,78 @@ def start_game():
 
         # Update the player's position (example code)
         # Check for arrow key presses
-        keys = pygame.key.get_pressed()
+        #keys = pygame.key.get_pressed()
 
         
-        if event.type == pygame.KEYDOWN:
-            keys = pygame.key.get_pressed()
-            if keys[pygame.K_LEFT]:                                                                                                         
-                player.image = walkLeft[walk_counter]
-                walk_delay_counter +=1
-                if walk_delay_counter >10:
-                    walk_delay_counter = 0
-                    walk_counter += 1
-                if walk_counter > 5:
-                    walk_counter = 0
-                # Update the player's x position
+        #if event.type == pygame.KEYDOWN:
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT]:                                                                                                         
+            player.image = walkLeft[walk_counter]
+            #walk_delay_counter +=1
+            #if walk_delay_counter >10:
+            #    walk_delay_counter = 0
+            #    walk_counter += 1
+            #if walk_counter > 5:
+            #    walk_counter = 0
+            # Update the player's x position
+            if not keys[pygame.K_UP] and (not keys[pygame.K_DOWN]):
                 player.x -= player.speed
-                #if event.key == pygame.K_UP:
-                #    player.y -= speed
-                #elif event.key == pygame.K_DOWN:           
-                #    player.y += speed
+            if keys[pygame.K_UP]:
+                player.x -= (1.0/math.sqrt(2.0))*player.speed
+                player.y -= (1.0/math.sqrt(2.0))*player.speed
+            if keys[pygame.K_DOWN]:
+                player.x -= (1.0/math.sqrt(2.0))*player.speed
+                player.y += (1.0/math.sqrt(2.0))*player.speed
+            #if event.key == pygame.K_UP:
+            #    player.y -= speed
+            #elif event.key == pygame.K_DOWN:           
+            #    player.y += speed
 
-            if keys[pygame.K_RIGHT]:
-                player.image = walkRight[walk_counter]
-                #player_image = pygame.transform.flip(player_image, True, False)
-                walk_delay_counter +=1
-                if walk_delay_counter >10:
-                    walk_delay_counter = 0
-                    walk_counter += 1
-                if walk_counter > 5:
-                    walk_counter = 0
-                # Update the player's x position
+        if keys[pygame.K_RIGHT]:
+            player.image = walkRight[walk_counter]
+            #player_image = pygame.transform.flip(player_image, True, False)
+            walk_delay_counter +=1
+            if walk_delay_counter >10:
+                walk_delay_counter = 0
+                walk_counter += 1
+            if walk_counter > 5:
+                walk_counter = 0
+            # Update the player's x position
+            #player.x += player.speed
+            if not keys[pygame.K_UP] and (not keys[pygame.K_DOWN]):
                 player.x += player.speed
             if keys[pygame.K_UP]:
-                player.image = walkRight[walk_counter]
-                #player_image = pygame.transform.flip(player_image, True, False)
-                walk_delay_counter +=1
-                if walk_delay_counter >10:
-                    walk_delay_counter = 0
-                    walk_counter += 1
-                if walk_counter > 5:
-                    walk_counter = 0
-                player.y -= player.speed
-            #if event.key == pygame.K_DOWN:
-            if keys[pygame.K_DOWN]:   
-                player.image = walkLeft[walk_counter]
-                walk_delay_counter +=1
-                if walk_delay_counter >10:
-                    walk_delay_counter = 0
-                    walk_counter += 1
-                if walk_counter > 5:
-                    walk_counter = 0
-                player.y += player.speed
-        else:
+                player.x += (1.0/math.sqrt(2.0))*player.speed
+                player.y -= (1.0/math.sqrt(2.0))*player.speed
+            if keys[pygame.K_DOWN]:
+                player.x += (1.0/math.sqrt(2.0))*player.speed
+                player.y += (1.0/math.sqrt(2.0))*player.speed
+        if keys[pygame.K_UP] and ((not keys[pygame.K_LEFT]) or (not keys[pygame.K_RIGHT])):
+            player.image = walkRight[walk_counter]
+            player.y -= player.speed
+        #    player.image = walkRight[walk_counter]
+            #player_image = pygame.transform.flip(player_image, True, False)
+            walk_delay_counter +=1
+            if walk_delay_counter >10:
+                walk_delay_counter = 0
+                walk_counter += 1
+            if walk_counter > 5:
+                walk_counter = 0
+        #    player.y -= player.speed
+        #if event.key == pygame.K_DOWN:
+        if keys[pygame.K_DOWN] and ((not keys[pygame.K_LEFT]) or (not keys[pygame.K_RIGHT])):
+            player.image = walkLeft[walk_counter]
+            player.y += player.speed
+        #if keys[pygame.K_DOWN]:   
+        #    player.image = walkLeft[walk_counter]
+            walk_delay_counter +=1
+            if walk_delay_counter >10:
+                walk_delay_counter = 0
+                walk_counter += 1
+            if walk_counter > 5:
+                walk_counter = 0
+        #    player.y += player.speed
+        if ((not keys[pygame.K_DOWN]) or (not keys[pygame.K_LEFT]) or (not keys[pygame.K_RIGHT])):
             player.image = idle[idle_counter]
             walk_delay_counter +=1
             if walk_delay_counter >10:
@@ -548,7 +568,13 @@ def start_game():
                 idle_counter += 1
             if idle_counter > 5:
                 idle_counter = 0
-            #player.x = player.x
+            player.x = player.x
+        walk_delay_counter +=1
+        if walk_delay_counter >10:
+            walk_delay_counter = 0
+            walk_counter += 1
+        if walk_counter > 5:
+            walk_counter = 0
 
         for cast in casts:
             cast.centerx = player.x - 20
