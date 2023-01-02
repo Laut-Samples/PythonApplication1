@@ -235,7 +235,7 @@ def start_game():
 
 
     # Set the score needed to reach the next level
-    level_up_score = 100
+    level_up_score = 250
     
 
     # Set up the display window
@@ -302,6 +302,9 @@ def start_game():
 
     enemy_count = 0
 
+    enemy_level = 25
+
+
     enemy_count_destroyed = 0
     
     # for automatic shooting
@@ -346,13 +349,12 @@ def start_game():
         rand = random.randint(0, 100)
 
         # If the random number is greater than 95, create a new enemy
-        if rand > 95 and enemy_count <= 10:
+        if rand > 95 and enemy_count <= enemy_level:
             # Generate a random position for the enemy
             #x = random.randint(50, game_width - background_width)  # 50 is the enemy's radius
             x = random.randint(0, game_width - (game_width - background_width) - ref_enemy.width)  # 50 is the enemy's radius
             y = random.randint(0, game_height - (game_height - background_height) - ref_enemy.height)
             
-
             
             # Draw the spawn indicator image
             # Create a new enemy object
@@ -362,8 +364,7 @@ def start_game():
             enemies.append(enemy)
             enemy_count += 1
            
-        if enemy_count_destroyed == 10:
-            skilltree()
+
 
 
         # Set startime for shooting (doesnt work without)
@@ -380,16 +381,16 @@ def start_game():
                 # Check player movement direction
                 if event.type == pygame.KEYDOWN:
                         keys = pygame.key.get_pressed()
-                        if keys[pygame.K_LEFT]:     
+                        if keys[pygame.K_a]:     
                             projectile.xdir = -1
                             #projectile.image = pygame.transform.rotate(projectile.image, -135)
-                        if keys[pygame.K_RIGHT]:
+                        if keys[pygame.K_d]:
                             projectile.xdir = 1
                             #projectile.image = pygame.transform.rotate(projectile.image, 45)
-                        if keys[pygame.K_UP]:
+                        if keys[pygame.K_w]:
                             projectile.ydir = -1
                             #projectile.image = pygame.transform.rotate(projectile.image, -225)
-                        if keys[pygame.K_DOWN]:
+                        if keys[pygame.K_s]:
                             projectile.ydir = 1
                             #projectile.image = pygame.transform.rotate(projectile.image, -45)
                         #if keys[pygame.K_DOWN] and keys[pygame.K_LEFT]:
@@ -494,7 +495,7 @@ def start_game():
         
         #if event.type == pygame.KEYDOWN:
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_LEFT]:                                                                                                         
+        if keys[pygame.K_a]:                                                                                                         
             player.image = walkLeft[walk_counter]
             #walk_delay_counter +=1
             #if walk_delay_counter >10:
@@ -503,12 +504,12 @@ def start_game():
             #if walk_counter > 5:
             #    walk_counter = 0
             # Update the player's x position
-            if not keys[pygame.K_UP] and (not keys[pygame.K_DOWN]):
+            if not keys[pygame.K_w] and (not keys[pygame.K_s]):
                 player.x -= player.speed
-            if keys[pygame.K_UP]:
+            if keys[pygame.K_w]:
                 player.x -= (1.0/math.sqrt(2.0))*player.speed
                 player.y -= (1.0/math.sqrt(2.0))*player.speed
-            if keys[pygame.K_DOWN]:
+            if keys[pygame.K_s]:
                 player.x -= (1.0/math.sqrt(2.0))*player.speed
                 player.y += (1.0/math.sqrt(2.0))*player.speed
             #if event.key == pygame.K_UP:
@@ -516,7 +517,7 @@ def start_game():
             #elif event.key == pygame.K_DOWN:           
             #    player.y += speed
 
-        if keys[pygame.K_RIGHT]:
+        if keys[pygame.K_d]:
             player.image = walkRight[walk_counter]
             #player_image = pygame.transform.flip(player_image, True, False)
             walk_delay_counter +=1
@@ -527,15 +528,15 @@ def start_game():
                 walk_counter = 0
             # Update the player's x position
             #player.x += player.speed
-            if not keys[pygame.K_UP] and (not keys[pygame.K_DOWN]):
+            if not keys[pygame.K_w] and (not keys[pygame.K_s]):
                 player.x += player.speed
-            if keys[pygame.K_UP]:
+            if keys[pygame.K_w]:
                 player.x += (1.0/math.sqrt(2.0))*player.speed
                 player.y -= (1.0/math.sqrt(2.0))*player.speed
-            if keys[pygame.K_DOWN]:
+            if keys[pygame.K_s]:
                 player.x += (1.0/math.sqrt(2.0))*player.speed
                 player.y += (1.0/math.sqrt(2.0))*player.speed
-        if keys[pygame.K_UP] and ((not keys[pygame.K_LEFT]) or (not keys[pygame.K_RIGHT])):
+        if keys[pygame.K_w] and ((not keys[pygame.K_a]) or (not keys[pygame.K_d])):
             player.image = walkRight[walk_counter]
             player.y -= player.speed
         #    player.image = walkRight[walk_counter]
@@ -548,7 +549,7 @@ def start_game():
                 walk_counter = 0
         #    player.y -= player.speed
         #if event.key == pygame.K_DOWN:
-        if keys[pygame.K_DOWN] and ((not keys[pygame.K_LEFT]) or (not keys[pygame.K_RIGHT])):
+        if keys[pygame.K_s] and ((not keys[pygame.K_a]) or (not keys[pygame.K_d])):
             player.image = walkLeft[walk_counter]
             player.y += player.speed
         #if keys[pygame.K_DOWN]:   
@@ -560,7 +561,7 @@ def start_game():
             if walk_counter > 5:
                 walk_counter = 0
         #    player.y += player.speed
-        if ((not keys[pygame.K_DOWN]) or (not keys[pygame.K_LEFT]) or (not keys[pygame.K_RIGHT])):
+        if ((not keys[pygame.K_s]) or (not keys[pygame.K_a]) or (not keys[pygame.K_d])):
             player.image = idle[idle_counter]
             walk_delay_counter +=1
             if walk_delay_counter >10:
@@ -614,10 +615,11 @@ def start_game():
 
             # Check if the player has reached the next level
         if player.score >= level_up_score:
+            enemy_level += 10
             # Increase the player's level by 1
             player.level += 1
             # Set the score needed to reach the next level
-            level_up_score += 1000
+            level_up_score += 500
             # Update the display
                             # Set the font and font size
             
@@ -647,6 +649,7 @@ def start_game():
             screen.blit(text_image, text_rect)
             # Set the font and font size
 
+
         if player.level == 2:
             font = pygame.font.Font(None, 36)
             # Set the text to display
@@ -660,6 +663,8 @@ def start_game():
             # Blit the text image to the screen
             screen.blit(text_image, text_rect)
             # Set the font and font size
+            skilltree()
+
 
         if player.level == 3:
             font = pygame.font.Font(None, 36)
