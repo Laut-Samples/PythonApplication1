@@ -230,7 +230,7 @@ def start_game():
     # Initialize Pygame
     pygame.init()
     # Set the game window size
-    game_width = 800
+    game_width = 1200
     game_height = 800
 
 
@@ -263,8 +263,8 @@ def start_game():
 
     
     # Set a flag to track whether the image has been flipped
-    image_flipped = False
-    player_flipped = False
+    #image_flipped = False
+    #player_flipped = False
 
     
 
@@ -276,14 +276,14 @@ def start_game():
     enemy_spawn_indicator_image = pygame.image.load("enemy_spawn_indicator.png")
 
 
-    
-    enemy = Enemy_1(200, 50, enemy_image, 1)
+    #enemy prototype for collision borders before any enemy is defined
+    ref_enemy = Enemy_1(200, 50, enemy_image, 1)
 
     # Create an enemy object
 
 
     # Add the enemy to the list of enemies
-    enemies = [enemy]
+    enemies = []
 
 
     # Create an empty list of enemies to remove
@@ -348,8 +348,9 @@ def start_game():
         # If the random number is greater than 95, create a new enemy
         if rand > 95 and enemy_count <= 10:
             # Generate a random position for the enemy
-            x = random.randint(50, game_width - 50)  # 50 is the enemy's radius
-            y = random.randint(50, game_width - 50)
+            #x = random.randint(50, game_width - background_width)  # 50 is the enemy's radius
+            x = random.randint(0, game_width - (game_width - background_width) - ref_enemy.width)  # 50 is the enemy's radius
+            y = random.randint(0, game_height - (game_height - background_height) - ref_enemy.height)
             
 
             
@@ -470,19 +471,20 @@ def start_game():
 
         
 
-     
+     #player.x > game_width - (game_width - background_width) - player.width
 
                 # Keep the enemy within the   game window
-        if enemy.x < 0:
-            enemy.x = 0
-        elif enemy.x > game_width - 50:  # 50 is the player's radius
-            enemy.x = game_width - 50
-        elif enemy.x < 0:
-            enemy.x = 0
-        if enemy.y < 0:
-            enemy.y = 0
-        elif enemy.y > game_height - 50:  # 50 is the player's radius
-            enemy.y = game_height - 50
+        for enemy in enemies:
+            if enemy.x < 0:
+                enemy.x = 0
+            elif enemy.x > game_width - (game_width - background_width) - enemy.width:  # 50 is the player's radius
+                enemy.x = game_width - (game_width - background_width) - enemy.width
+            elif enemy.x < 0:
+                enemy.x = 0
+            if enemy.y < 0:
+                enemy.y = 0
+            elif enemy.y > enemy.y > game_height - (game_height - background_height) - enemy.height:  # 50 is the player's radius
+                enemy.y = enemy.y > game_height - (game_height - background_height) - enemy.height
 
 
         # Update the player's position (example code)
@@ -559,12 +561,12 @@ def start_game():
             # Keep the player within the game window
         if player.x < 0:
             player.x = 0
-        elif player.x > game_width - 50:  # 50 is the player's radius
-            player.x = game_width - 50
+        elif player.x > game_width - (game_width - background_width) - player.width:  # 50 is the player's radius
+            player.x = game_width - (game_width - background_width) - player.width
         if player.y < 0:
             player.y = 0
-        elif player.y > game_height - 50:  # 50 is the player's radius
-            player.y = game_height - 50
+        elif player.y > game_height - (game_height - background_height) - player.height:  # 50 is the player's radius
+            player.y = game_height - (game_height - background_height) - player.height
 
 
 
@@ -603,7 +605,7 @@ def start_game():
 
         # Draw the background image on the screen
         #screen.blit(background_image, (0, 0))
-        screen.blit(background_image, (((-1.0)*player.x + game_width/2.0) - background_width/2.0, (((-1.0)*player.y  + game_height/2.0) - background_height/2.0)))
+        screen.blit(background_image, ((-1.0)*player.x + game_width/2.0, (-1.0)*player.y  + game_height/2.0))
         
         if player.level == 1:
             font = pygame.font.Font(None, 36)
@@ -689,19 +691,23 @@ def start_game():
             # Update the projectile
             projectile.update(projectiles)
             # Draw the projectile image on the screen
-            screen.blit(projectile.image, (projectile.x, projectile.y))
-
+            #screen.blit(background_image, (((-1.0)*player.x + game_width/2.0) - background_width/2.0, (((-1.0)*player.y  + game_height/2.0) - background_height/2.0)))
+            #screen.blit(projectile.image, (((-1.0)*player.x + game_width/2.0) - background_width/2.0 + projectile.x, (((-1.0)*player.y  + game_height/2.0) - background_height/2.0) + projectile.y))
+            #screen.blit(background_image, ((-1.0)*player.x + game_width/2.0, (-1.0)*player.y  + game_height/2.0))
+            #screen.blit(projectile.image, (game_width/2.0 + projectile.x, game_height/2.0 + projectile.y))
+            screen.blit(projectile.image, (game_width/2.0 + projectile.x - player.x, game_height/2.0 + projectile.y - player.y))
+            #screen.blit(projectile.image, (game_width/2 + projectile.x, game_height/2 + projectile.y))
         # iterate over casts
         for cast in casts:
             # Update the cast
             cast.update(casts)
             # Draw the cast image on the screen
-            screen.blit(cast.image, (cast.x, cast.y))
+            screen.blit(cast.image, (game_width/2.0 + cast.x - player.x, game_height/2.0 + cast.y - player.y))
 
             # Update the enemy positions
         for enemy in enemies:
             enemy.update(player)
-            screen.blit(enemy.image, (enemy.x, enemy.y))
+            screen.blit(enemy.image, (enemy.x + game_width/2.0 - player.x, enemy.y + game_height/2.0 - player.y))
 
             # Check if the game is over
         if player.player_health <= 0 :
