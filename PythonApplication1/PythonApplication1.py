@@ -237,7 +237,7 @@ def start_game():
 
 
     # Set the score needed to reach the next level
-    level_up_score = 250
+    level_up_score = 100
     
 
     # Set up the display window
@@ -795,7 +795,7 @@ def start_game():
 
 
 # Set up the display window
-screen = pygame.display.set_mode((400, 300))
+screen = pygame.display.set_mode((500, 500))
 
 # Load the start button image
 start_button_image = pygame.image.load("button.png")
@@ -964,15 +964,15 @@ Buttons = [update_button_choose_one,update_button_choose_two]
 
 def skilltree(): 
     # Set the game window size
-    game_width = 800
-    game_height = 800
+    game_width = 500
+    game_height = 500
 
 
 
     choice_width = 100
     choice_height = 100
         # Load the background image
-    background_image = pygame.image.load("background.jpg")
+    update_background_image = pygame.image.load("Upgrade_Game_Background.png")
     # Create a game loop
     while True:
     
@@ -1023,16 +1023,16 @@ def skilltree():
                
                 
         # Draw the background image on the screen
-                screen.blit(background_image, (0, 0))
+                screen.blit(update_background_image, (200, 200))
                        # Draw the start button image on the screen
                   # Scale the background image to the size of the game window
-                background_image = pygame.transform.scale(background_image, (game_width, game_height))
+                update_background_image = pygame.transform.scale(update_background_image, (game_width, game_height))
 
                 #screen.blit(start_button.image, (start_button.x, start_button.y))
-                screen.blit(update_button.image, (update_button.x, update_button.y))
-                screen.blit(update_button_choose_one.image, (update_button_choose_one.x, update_button_choose_one.y))
-                screen.blit(update_button_choose_two.image, (update_button_choose_two.x, update_button_choose_two.y))
-                screen.blit(update_button_choose_three.image, (update_button_choose_three.x, update_button_choose_three.y))
+                #screen.blit(update_button.image, (update_button.x, update_button.y))
+                screen.blit(update_button_choose_one.image, (360, 420))
+                screen.blit(update_button_choose_two.image, (420, 420))
+                screen.blit(update_button_choose_three.image, (500, 420))
          
                 
 
@@ -1052,6 +1052,8 @@ def skilltree():
 # Create the first game loop
 while True:
     
+    start_background_image = pygame.image.load("Start_Game_Background.png")
+
     # Handle events
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -1072,8 +1074,20 @@ while True:
 
     # If the game start flag is False, draw the start button on the screen
     if not game_start:
-            # Draw the start button image on the screen
-        screen.blit(start_button.image, (start_button.x, start_button.y))
+                    # Draw the start button image on the screen
+        screen.blit(start_button.image, (100, 50))
+        screen.blit(start_background_image, (0, 0))
+                       # Draw the start button image on the screen
+                  # Scale the background image to the size of the game window
+        start_background_image = pygame.transform.scale(start_background_image, (500, 500))
+
+
+
+        # draw player 
+        #screen.blit(player.image, (player.x, player.y))
+        screen.blit(player.image, (160, 220))
+
+
     # If the game start flag is True, proceed with the game logic
     else:
         # Update the game state
