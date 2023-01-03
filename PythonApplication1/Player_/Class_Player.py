@@ -1,5 +1,5 @@
 class Player:
-    def __init__(self, x, y, image, last_update_time=0, level = 1, score = 0, speed = 5):
+    def __init__(self, x, y, image, last_update_time=0, level = 1, score = 0, speed = 4):
         self.x = x
         self.y = y
         self.image = image

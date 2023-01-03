@@ -97,7 +97,7 @@ class Projectile:
     def __init__(self, x, y,radius=50):
         self.x = x
         self.y = y
-        self.speed = 5
+        self.speed = 7
         self.radius = radius  # add radius attribute
         self.image = pygame.transform.smoothscale(pygame.image.load("fb0.png"), (fb_sx,fb_sy))  # load projectile image
         self.timer = 0  # elapsed time since projectile was created
@@ -107,6 +107,7 @@ class Projectile:
         self.ydir = 0
         self.counter = 0 # sprite counter 0 to 5 updated in update()
         self.delay_counter = 0 # so counter doesnt update every timestep
+        self.alpha = 0
 
     def update(self, projectiles):
     # Update the projectile's position
@@ -114,28 +115,29 @@ class Projectile:
         #y direction is mirrored -1 => up, +1 => down
         self.x += self.xdir * self.speed 
         self.y += self.ydir * self.speed
-        if self.xdir == 0:
-            if self.ydir == 0:
-                self.x += self.speed # shoot right if idle position
-                self.image = fireball[self.counter]
-            elif self.ydir == -1:
-                self.image = pygame.transform.rotate(fireball[self.counter], 90)
-            elif self.ydir == 1:
-                self.image = pygame.transform.rotate(fireball[self.counter], -90)
-        elif self.xdir == -1:
-            if self.ydir == 0:
-                self.image = pygame.transform.rotate(fireball[self.counter], 180)
-            elif self.ydir == -1:
-                self.image = pygame.transform.rotate(fireball[self.counter], 135)
-            elif self.ydir == 1:
-                self.image = pygame.transform.rotate(fireball[self.counter], 225)
-        elif self.xdir == 1:
-            if self.ydir == 0:
-                self.image = fireball[self.counter]
-            elif self.ydir == -1:
-                self.image = pygame.transform.rotate(fireball[self.counter], 45)
-            elif self.ydir == 1:
-                self.image = pygame.transform.rotate(fireball[self.counter], -45)
+        self.image = pygame.transform.rotate(fireball[self.counter], self.alpha)
+        #if self.xdir == 0:
+        #    if self.ydir == 0:
+        #        self.x += self.speed # shoot right if idle position
+        #        self.image = fireball[self.counter]
+        #    elif self.ydir == -1:
+        #        self.image = pygame.transform.rotate(fireball[self.counter], 90)
+        #    elif self.ydir == 1:
+        #        self.image = pygame.transform.rotate(fireball[self.counter], -90)
+        #elif self.xdir == -1:
+        #    if self.ydir == 0:
+        #        self.image = pygame.transform.rotate(fireball[self.counter], 180)
+        #    elif self.ydir == -1:
+        #        self.image = pygame.transform.rotate(fireball[self.counter], 135)
+        #    elif self.ydir == 1:
+        #        self.image = pygame.transform.rotate(fireball[self.counter], 225)
+        #elif self.xdir == 1:
+        #    if self.ydir == 0:
+        #        self.image = fireball[self.counter]
+        #    elif self.ydir == -1:
+        #        self.image = pygame.transform.rotate(fireball[self.counter], 45)
+        #    elif self.ydir == 1:
+        #        self.image = pygame.transform.rotate(fireball[self.counter], -45)
         #self.image = fireball[self.counter]
         self.delay_counter +=1
         if self.delay_counter >5: # number of timesteps between counter increase
@@ -377,21 +379,51 @@ def start_game():
              # Check if the elapsed time since the player last shot is greater than the shooting delay
              if current_time - last_space_down_time > player.shooting_delay:
                 # Create a new projectile 2 pixels away from the player's position
-                projectile = Projectile(player.x - 20, player.y - 20)
+                #projectile = Projectile(player.x - player.width/2.0, player.y - player.height/2.0)
                 # Check player movement direction
-                if event.type == pygame.KEYDOWN:
-                        keys = pygame.key.get_pressed()
-                        if keys[pygame.K_a]:     
-                            projectile.xdir = -1
+                #for event in pygame.event.get():
+                    #if event.type == pygame.MOUSEBUTTONDOWN:
+                    # Get the mouse position
+                    #mouse_x, mouse_y = pygame.mouse.get_pos() 
+                    #keys = pygame.key.get_pressed()
+                    mouse = pygame.mouse.get_pressed(num_buttons=5)[0]
+                    #print(mouse)
+                    if mouse == True:
+                            mouse_x, mouse_y = pygame.mouse.get_pos()
+                            mouse_pos_display_x = mouse_x - game_width/2.0
+                            mouse_pos_display_y = mouse_y - game_height/2.0
+                            #print(mouse_pos_display_y)
+
+                        #if event.type == pygame.MOUSEBUTTONDOWN:
+                            projectile = Projectile(player.x - player.width/2.0, player.y - player.height/2.0)
+                        #if event.type == pygame.MOUSEBUTTONDOWN:
+                        # Get the mouse position
+                            #mouse_x, mouse_y = pygame.mouse.get_pos() #
+                            #mouse_x - game_width/2.0
+                            #mouse_y + game_height/2.0
+                             #= math.atan = (mouse_x - game_width/2.0)/(mouse_y + game_height/2.0)
+                            alpha = math.atan2((mouse_x - game_width/2.0),(mouse_y - game_height/2.0)) # in -pi to pi radiant
+                            projectile.alpha = (alpha * 360 / (2*math.pi)) - 90 # in -90 to 270 degree, fuer image rotation in update()
+                            #print(alpha_degree)
+                            projectile.xdir = (1.0)*math.sin(alpha)
+                            projectile.ydir = (1.0)*math.cos(alpha)
+                            #projectile.image = pygame.transform.rotate(projectile.image, alpha_degree)
+                            # Check for mouse clicks on the start button
+                            #if start_button.x < mouse_x < start_button.x + start_button.image.get_width() and start_button.y < mouse_y < start_button.y + start_button.image.get_height():
+                                # Set the game start flag to True
+                        #if event.type == pygame.KEYDOWN:
+                        #keys = pygame.key.get_pressed()
+                        #if keys[pygame.K_a]:     
+                        #    projectile.xdir = -1
                             #projectile.image = pygame.transform.rotate(projectile.image, -135)
-                        if keys[pygame.K_d]:
-                            projectile.xdir = 1
+                        #if keys[pygame.K_d]:
+                        #    projectile.xdir = 1
                             #projectile.image = pygame.transform.rotate(projectile.image, 45)
-                        if keys[pygame.K_w]:
-                            projectile.ydir = -1
+                        #if keys[pygame.K_w]:
+                        #    projectile.ydir = -1
                             #projectile.image = pygame.transform.rotate(projectile.image, -225)
-                        if keys[pygame.K_s]:
-                            projectile.ydir = 1
+                        #if keys[pygame.K_s]:
+                        #    projectile.ydir = 1
                             #projectile.image = pygame.transform.rotate(projectile.image, -45)
                         #if keys[pygame.K_DOWN] and keys[pygame.K_LEFT]:
                             #projectile.image = pygame.transform.rotate(projectile.image, 90)
@@ -399,11 +431,11 @@ def start_game():
                             #projectile.image = pygame.transform.rotate(projectile.image, -90)
                         #if keys[pygame.K_UP] and keys[pygame.K_LEFT]:
                             #projectile.image = pygame.transform.rotate(projectile.image, 180)
-                # Add the projectile to the list
-                projectiles.append(projectile)
+                        # Add the projectile to the list
+                            projectiles.append(projectile)
 
-                # Update the time when the player last shot
-                last_space_down_time = current_time
+                            # Update the time when the player last shot
+                            last_space_down_time = current_time
              if player.cast_on == True:
                  if current_time - last_cast_time > 4.0*player.shooting_delay:
                     cast = Cast(player.x - 20, player.y -20, player.x - 20, player.y - 20)

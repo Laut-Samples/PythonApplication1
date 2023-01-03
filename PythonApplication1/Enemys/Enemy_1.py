@@ -3,7 +3,7 @@ class Enemy_1:
         self.x = x
         self.y = y
         self.image = image
-        self.speed = 1
+        self.speed = 0.8
         self.counter = 0
         self.delay_counter = 0
         self.health = health
