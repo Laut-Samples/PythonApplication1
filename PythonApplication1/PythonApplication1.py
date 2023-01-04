@@ -339,7 +339,7 @@ def start_game(player):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                sys.exit()
+                #sys.exit()
 
         
 
@@ -838,7 +838,7 @@ def new_game():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                sys.exit()
+                #sys.exit()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 # Get the mouse position
@@ -971,6 +971,7 @@ update_button_choose_three = update_button_choose_three(450, 300, 100, 100,updat
 Buttons = [update_button_choose_one,update_button_choose_two]
 
 def skilltree(): 
+    screen = pygame.display.set_mode((500, 500))
     # Set the game window size
     game_width = 500
     game_height = 500
@@ -988,7 +989,7 @@ def skilltree():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                sys.exit()
+                #sys.exit()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                         # Get the mouse position
@@ -1031,16 +1032,16 @@ def skilltree():
                
                 
         # Draw the background image on the screen
-                screen.blit(update_background_image, (200, 200))
+                screen.blit(update_background_image, (0, 0))
                        # Draw the start button image on the screen
                   # Scale the background image to the size of the game window
                 update_background_image = pygame.transform.scale(update_background_image, (game_width, game_height))
 
                 #screen.blit(start_button.image, (start_button.x, start_button.y))
                 #screen.blit(update_button.image, (update_button.x, update_button.y))
-                screen.blit(update_button_choose_one.image, (360, 420))
-                screen.blit(update_button_choose_two.image, (420, 420))
-                screen.blit(update_button_choose_three.image, (500, 420))
+                screen.blit(update_button_choose_one.image, (160, 220))
+                screen.blit(update_button_choose_two.image, (220, 220))
+                screen.blit(update_button_choose_three.image, (300, 220))
          
                 
 
@@ -1081,7 +1082,7 @@ while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
-            sys.exit()
+            #sys.exit()
 
             # Check for mouse click event
     if event.type == pygame.MOUSEBUTTONDOWN:
