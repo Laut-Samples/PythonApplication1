@@ -998,7 +998,7 @@ def skilltree():
                             if update_button_choose_one.x < mouse_x < update_button_choose_one.x + update_button_choose_one.image.get_width() and update_button_choose_one.y < mouse_y < update_button_choose_one.y + update_button_choose_one.image.get_height():
                                 # Set the game start flag to True
                                 player.cast_on = True
-                                start_game()
+                                start_game(player)
 #skill 2
             if event.type == pygame.MOUSEBUTTONDOWN:
                         # Get the mouse position
@@ -1007,7 +1007,7 @@ def skilltree():
                             if update_button_choose_two.x < mouse_x < update_button_choose_two.x + update_button_choose_two.image.get_width() and update_button_choose_two.y < mouse_y < update_button_choose_two.y + update_button_choose_two.image.get_height():
                                 # Set the game start flag to True
                                 player.speed += 5
-                                start_game()
+                                start_game(player)
 #skill 3
             if event.type == pygame.MOUSEBUTTONDOWN:
                         # Get the mouse position
@@ -1016,7 +1016,7 @@ def skilltree():
                             if update_button_choose_three.x < mouse_x < update_button_choose_three.x + update_button_choose_three.image.get_width() and update_button_choose_three.y < mouse_y < update_button_choose_three.y + update_button_choose_three.image.get_height():
                                 # Set the game start flag to True
                                 player.player_health += 1
-                                start_game()
+                                start_game(player)
 
 
 # Clear the screen
