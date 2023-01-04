@@ -1072,9 +1072,8 @@ while True:
     
                 # Load the player image
     player2_image = pygame.transform.smoothscale(pygame.image.load("knight_idle_anim_f0.png"), (50,50))
+    
 
-
-    # Create a player object
 
     player2 = Player_Knight(160, 220, player2_image) 
 
@@ -1083,11 +1082,27 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             #sys.exit()
+    
+    mouse_x, mouse_y = pygame.mouse.get_pos()
+    ###################################################<<<<<<<<<<<<<<<<<<<<<<------------  Player idle +1 wenn Mouse auf Charackter 
+    start_time = 0
 
+    if event.type == pygame.mouse.get_pos( player3.x < mouse_x < player3.x + player3.image.get_width() and player3.y <  mouse_y < player3.y + player3.image.get_height()):
+        
+        start_time = pygame.time.get_ticks()
+
+        if start_time + pygame.time.get_ticks() -  start_time < 1000:
+            
+            while player3.idle <= 5:
+                player3.idle +1
+
+            player.idle = 0
+
+        
+          
             # Check for mouse click event
     if event.type == pygame.MOUSEBUTTONDOWN:
         # Get the mouse position
-        mouse_x, mouse_y = pygame.mouse.get_pos() 
         # Check for mouse clicks on the start button
         #if start_button.x < mouse_x < start_button.x + start_button.image.get_width() and start_button.y < mouse_y < start_button.y + start_button.image.get_height():
             # Set the game start flag to True
