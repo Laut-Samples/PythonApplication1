@@ -9,8 +9,7 @@
 #- score auf game over
 #- hit counter
 #- player eingabe und ingame speicher wer gerade spielt
-# bildschirm folgt spieler
-# zielen mit maus und bewegen mit WASD
+
 
 
 ### ENEMY####
@@ -24,7 +23,6 @@
 #- dash zur seite spring - skill (level 5 + speed auf 10 
 #- richtung schießen als lezttes geguckt
 #- start waffel auswahl 
-#- start charackter auswahl 
 # spieler und enemys etwas kleiner 
 
 
@@ -35,7 +33,11 @@
 # Blitze 
 
 
-from Player_.Class_Player import Player
+from Player_.Class_Player import Player_Knight
+from Player_.Class_Player import Player_Bow
+
+
+
 from Enemys.Enemy_1 import Enemy_1
 
 from asyncio.windows_events import NULL
@@ -57,14 +59,22 @@ class Level:
         self.number_of_enemies = number_of_enemies
 
 
-idle = [pygame.transform.smoothscale(pygame.image.load("knight_idle_anim_f0.png"), (50,50)), pygame.transform.smoothscale(pygame.image.load("knight_idle_anim_f1.png"), (50,50)), pygame.transform.smoothscale(pygame.image.load("knight_idle_anim_f2.png"), (50,50)), pygame.transform.smoothscale(pygame.image.load("knight_idle_anim_f3.png"), (50,50)), 
-        pygame.transform.smoothscale(pygame.image.load("knight_idle_anim_f4.png"), (50,50)), pygame.transform.smoothscale(pygame.image.load("knight_idle_anim_f5.png"), (50,50))]
+class Avatar:
+    def __init__(self):
+        self.bow_on = 0
+        self.knight_on = 1
+         
 
-walkRight = [pygame.transform.smoothscale(pygame.image.load("knight_run_anim_f0.png"), (50,50)), pygame.transform.smoothscale(pygame.image.load("knight_run_anim_f1.png"), (50,50)), pygame.transform.smoothscale(pygame.image.load("knight_run_anim_f2.png"), (50,50)), pygame.transform.smoothscale(pygame.image.load("knight_run_anim_f3.png"), (50,50)), 
-             pygame.transform.smoothscale(pygame.image.load("knight_run_anim_f4.png"), (50,50)), pygame.transform.smoothscale(pygame.image.load("knight_run_anim_f5.png"), (50,50))]
 
-walkLeft = [pygame.transform.flip(pygame.transform.smoothscale(pygame.image.load("knight_run_anim_f0.png"), (50,50)), True, False), pygame.transform.flip(pygame.transform.smoothscale(pygame.image.load("knight_run_anim_f1.png"), (50,50)), True, False), pygame.transform.flip(pygame.transform.smoothscale(pygame.image.load("knight_run_anim_f2.png"), (50,50)), True, False), pygame.transform.flip(pygame.transform.smoothscale(pygame.image.load("knight_run_anim_f3.png"), (50,50)), True, False), 
-             pygame.transform.flip(pygame.transform.smoothscale(pygame.image.load("knight_run_anim_f4.png"), (50,50)), True, False), pygame.transform.flip(pygame.transform.smoothscale(pygame.image.load("knight_run_anim_f5.png"), (50,50)), True, False)]
+
+
+
+# Create a player object
+
+
+global avatar
+avatar = Avatar()
+
 
 
 #Goblin enemy type
@@ -218,17 +228,11 @@ game_start = False
 
 
 
-    # Load the player image
-player_image = pygame.transform.smoothscale(pygame.image.load("knight_idle_anim_f0.png"), (50,50))
 
 
-# Create a player object
-global player 
-player = Player(50, 50, player_image)        
+def start_game(player):
 
 
-
-def start_game():
     # Initialize Pygame
     pygame.init()
     # Set the game window size
@@ -238,7 +242,8 @@ def start_game():
 
     # Set the score needed to reach the next level
     level_up_score = 100
-    
+
+
 
     # Set up the display window
     screen = pygame.display.set_mode((game_width, game_height))
@@ -268,7 +273,6 @@ def start_game():
     #image_flipped = False
     #player_flipped = False
 
-    
 
 
     # Load the enemy image
@@ -282,7 +286,6 @@ def start_game():
     ref_enemy = Enemy_1(200, 50, enemy_image, 1)
 
     # Create an enemy object
-
 
     # Add the enemy to the list of enemies
     enemies = []
@@ -339,6 +342,11 @@ def start_game():
                 sys.exit()
 
         
+
+
+
+
+
             # Check if the player's health is zero or below
         if player.player_health <= 0:
 
@@ -529,7 +537,7 @@ def start_game():
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_d]:
-            player.image = walkRight[walk_counter]
+            player.image = player.walkRight[walk_counter]
             #player_image = pygame.transform.flip(player_image, True, False)
             walk_delay_counter +=1
             if walk_delay_counter >10:
@@ -549,7 +557,7 @@ def start_game():
                 player.y += (1.0/math.sqrt(2.0))*player.speed
 
         if keys[pygame.K_a]:
-            player.image = walkLeft[walk_counter]
+            player.image = player.walkLeft[walk_counter]
             #player_image = pygame.transform.flip(player_image, True, False)
             walk_delay_counter +=1
             if walk_delay_counter >10:
@@ -570,7 +578,7 @@ def start_game():
 
 
         if keys[pygame.K_w] and ((not keys[pygame.K_a]) and (not keys[pygame.K_d])):
-            player.image = walkRight[walk_counter]
+            player.image = player.walkRight[walk_counter]
             player.y -= player.speed
         #    player.image = walkRight[walk_counter]
             #player_image = pygame.transform.flip(player_image, True, False)
@@ -584,7 +592,7 @@ def start_game():
         #    player.y -= player.speed
         #if event.key == pygame.K_DOWN:
         if keys[pygame.K_s] and ((not keys[pygame.K_a]) and (not keys[pygame.K_d])):
-            player.image = walkLeft[walk_counter]
+            player.image = player.walkLeft[walk_counter]
             player.y += player.speed
         #if keys[pygame.K_DOWN]:   
         #    player.image = walkLeft[walk_counter]
@@ -597,7 +605,7 @@ def start_game():
         #    player.y += player.speed
 
         if ((not keys[pygame.K_s]) and (not keys[pygame.K_a]) and (not keys[pygame.K_d]) and (not keys[pygame.K_w])):
-            player.image = idle[idle_counter]
+            player.image = player.idle[idle_counter]
             walk_delay_counter +=1
             if walk_delay_counter >10:
                 walk_delay_counter = 0
@@ -1052,7 +1060,22 @@ def skilltree():
 # Create the first game loop
 while True:
     
+
+    global player
+
+    player3_image = pygame.transform.scale(pygame.image.load("adventurer-bow-01.png"), (90,70))
+    # Create a player object
+    player3 = Player_Bow(205, 200, player3_image) 
     start_background_image = pygame.image.load("Start_Game_Background.png")
+
+    
+                # Load the player image
+    player2_image = pygame.transform.smoothscale(pygame.image.load("knight_idle_anim_f0.png"), (50,50))
+
+
+    # Create a player object
+
+    player2 = Player_Knight(160, 220, player2_image) 
 
     # Handle events
     for event in pygame.event.get():
@@ -1065,9 +1088,20 @@ while True:
         # Get the mouse position
         mouse_x, mouse_y = pygame.mouse.get_pos() 
         # Check for mouse clicks on the start button
-        if start_button.x < mouse_x < start_button.x + start_button.image.get_width() and start_button.y < mouse_y < start_button.y + start_button.image.get_height():
+        #if start_button.x < mouse_x < start_button.x + start_button.image.get_width() and start_button.y < mouse_y < start_button.y + start_button.image.get_height():
             # Set the game start flag to True
-            start_game()
+            #start_game()
+
+        if player3.x < mouse_x < player3.x + player3.image.get_width() and player3.y <  mouse_y < player3.y + player3.image.get_height():
+            
+            player = Player_Bow(100, 75, player3_image) 
+            start_game(player)
+
+        if player2.x < mouse_x < player2.x + player2.image.get_width() and player2.y <  mouse_y < player2.y + player2.image.get_height():
+            
+            
+            player = Player_Knight(100, 75, player2_image) 
+            start_game(player)
 
     # Clear the screen
     screen.fill((0, 0, 0))  # fill with black
@@ -1081,11 +1115,13 @@ while True:
                   # Scale the background image to the size of the game window
         start_background_image = pygame.transform.scale(start_background_image, (500, 500))
 
+            # Load the player image
+        screen.blit(player2.image, (160, 220))
 
 
         # draw player 
         #screen.blit(player.image, (player.x, player.y))
-        screen.blit(player.image, (160, 220))
+        screen.blit(player3.image, (205, 200))
 
 
     # If the game start flag is True, proceed with the game logic
